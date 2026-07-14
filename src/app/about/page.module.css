@@ -1,0 +1,171 @@
+.wrap {
+  min-height: 80vh;
+}
+
+.hero {
+  background: linear-gradient(135deg, #111111 0%, #2d2d2d 100%);
+  padding: 40px 20px;
+  color: #ffffff;
+  text-align: center;
+}
+
+.heroInner {
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.heroIcon {
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px;
+}
+
+.heroTitle {
+  font-size: 28px;
+  font-weight: 900;
+  letter-spacing: -0.5px;
+  margin-bottom: 10px;
+}
+
+.heroDesc {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.75);
+  line-height: 1.6;
+}
+
+.main {
+  max-width: 720px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 30px 20px 60px;
+}
+
+/* ── Dev notice banner ── */
+.devBanner {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  background: #fffbeb;
+  border: 1.5px solid #fde68a;
+  border-radius: 14px;
+  padding: 18px 20px;
+  margin-bottom: 28px;
+}
+
+.devIcon {
+  width: 40px;
+  height: 40px;
+  border-radius: 11px;
+  background: #fef3c7;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.devTitle {
+  font-size: 14px;
+  font-weight: 800;
+  color: #92400e;
+  margin-bottom: 4px;
+}
+
+.devDesc {
+  font-size: 13px;
+  color: #92400e;
+  line-height: 1.6;
+  opacity: 0.9;
+}
+
+/* ── Sections ── */
+.section {
+  margin-bottom: 28px;
+}
+
+.sectionTitle {
+  font-size: 17px;
+  font-weight: 800;
+  color: #111111;
+  margin-bottom: 10px;
+}
+
+.sectionText {
+  font-size: 14px;
+  color: #78716c;
+  line-height: 1.75;
+}
+
+/* ── Feature grid ── */
+.featureGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.featureCard {
+  background: #ffffff;
+  border: 1px solid #e5e5e5;
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.featureIcon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: #f0f0f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.featureName {
+  font-size: 13px;
+  font-weight: 700;
+  color: #111111;
+  margin-bottom: 3px;
+}
+
+.featureDesc {
+  font-size: 12px;
+  color: #78716c;
+  line-height: 1.5;
+}
+
+/* ── Contact card ── */
+.contactCard {
+  background: #ffffff;
+  border: 1.5px solid #e5e5e5;
+  border-radius: 14px;
+  padding: 20px 22px;
+  text-align: center;
+}
+
+.contactTitle {
+  font-size: 15px;
+  font-weight: 800;
+  color: #111111;
+  margin-bottom: 6px;
+}
+
+.contactDesc {
+  font-size: 13px;
+  color: #78716c;
+  line-height: 1.6;
+}
+
+@media (max-width: 600px) {
+  .featureGrid {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,0 +1,306 @@
+/* ═══════════════════════════════════════
+   DEAL CARD
+═══════════════════════════════════════ */
+.card {
+  background: #ffffff;
+  border-radius: 14px;
+  border: 1px solid #e5e5e5;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.22s ease, box-shadow 0.22s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.12);
+}
+
+/* ── Image area ── */
+.imageArea {
+  height: 156px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 52px;
+  position: relative;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+/* Category gradients */
+.imgBeauty  { background: linear-gradient(145deg, #fdf2f8, #fae8ff); }
+.imgFashion { background: linear-gradient(145deg, #f5f3ff, #ede9fe); }
+.imgTech    { background: linear-gradient(145deg, #eff6ff, #dbeafe); }
+.imgHome    { background: linear-gradient(145deg, #f0fdf4, #dcfce7); }
+.imgFood    { background: linear-gradient(145deg, #fff7ed, #ffedd5); }
+.imgSports  { background: linear-gradient(145deg, #f0f9ff, #e0f2fe); }
+.imgGaming  { background: linear-gradient(145deg, #f5f3ff, #ddd6fe); }
+.imgOther   { background: linear-gradient(145deg, #fafafa, #f1f5f9); }
+
+/* ── Badges on image ── */
+.heatBadge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  color: #ffffff;
+  border-radius: 20px;
+  padding: 4px 9px;
+  font-size: 11px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.discountBadge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: #ffffff;
+  color: #dc2626;
+  border-radius: 7px;
+  padding: 4px 8px;
+  font-size: 12px;
+  font-weight: 900;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+}
+
+.saveBtn {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid #e5e5e5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.saveBtn:hover {
+  transform: scale(1.1);
+}
+
+.saveBtnSaved {
+  background: #fdf2f8;
+  border-color: #f9a8d4;
+}
+
+.storeBadge {
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+  background: rgba(255, 255, 255, 0.92);
+  border-radius: 6px;
+  padding: 3px 8px;
+  font-size: 10px;
+  font-weight: 700;
+  color: #1c1917;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+}
+
+/* ── Content ── */
+.content {
+  padding: 13px 13px 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.tagRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 7px;
+  gap: 6px;
+}
+
+.tags {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+
+.catTag {
+  background: #f0f0f0;
+  color: #555555;
+  border-radius: 5px;
+  padding: 2px 7px;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.verifiedTag {
+  background: #f0fdf4;
+  color: #16a34a;
+  border-radius: 5px;
+  padding: 2px 7px;
+  font-size: 10px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.timeAgo {
+  font-size: 11px;
+  color: #a8a29e;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  flex-shrink: 0;
+}
+
+.title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #1c1917;
+  margin-bottom: 4px;
+  line-height: 1.4;
+  cursor: pointer;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  border: none;
+  background: none;
+  text-align: left;
+  font-family: inherit;
+  padding: 0;
+}
+
+.title:hover {
+  color: #111111;
+}
+
+.description {
+  font-size: 12px;
+  color: #78716c;
+  margin-bottom: 12px;
+  line-height: 1.4;
+  flex: 1;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+}
+
+/* ── Price block ── */
+.priceBlock {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.priceNow {
+  font-size: 22px;
+  font-weight: 900;
+  color: #111111;
+}
+
+.priceDetails {
+  display: flex;
+  flex-direction: column;
+}
+
+.priceWas {
+  font-size: 11px;
+  color: #a8a29e;
+  text-decoration: line-through;
+}
+
+.priceSave {
+  font-size: 11px;
+  color: #16a34a;
+  font-weight: 700;
+}
+
+/* ── Votes + CTA ── */
+.actions {
+  padding: 0 13px 13px;
+}
+
+.voteRow {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 7px 9px;
+  background: #fafafa;
+  border-radius: 8px;
+  border: 1px solid #e5e5e5;
+  margin-bottom: 9px;
+}
+
+.voteBtn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 9px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  border: 1.5px solid #e5e5e5;
+  background: #ffffff;
+  color: #78716c;
+  font-family: inherit;
+  transition: all 0.14s;
+}
+
+.voteBtn:hover {
+  transform: scale(1.05);
+}
+
+.voteBtnHot {
+  background: #fef2f2;
+  color: #dc2626;
+  border-color: #dc2626;
+}
+
+.voteBtnCold {
+  background: #eff6ff;
+  color: #2563eb;
+  border-color: #2563eb;
+}
+
+.heatLabel {
+  margin-left: auto;
+  font-size: 11px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.dealBtn {
+  width: 100%;
+  padding: 9px;
+  background: linear-gradient(135deg, #111111, #383838);
+  color: #ffffff;
+  border: none;
+  border-radius: 9px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-family: inherit;
+  text-decoration: none;
+  transition: box-shadow 0.2s;
+}
+
+.dealBtn:hover {
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+}

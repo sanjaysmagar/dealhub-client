@@ -1,0 +1,866 @@
+.layout {
+  display: flex;
+  min-height: calc(100vh - 56px);
+  background: #fafafa;
+}
+
+/* ── Sidebar ── */
+.sidebar {
+  width: 216px;
+  flex-shrink: 0;
+  background: #ffffff;
+  border-right: 1px solid #e5e5e5;
+  padding: 28px 0;
+  position: sticky;
+  top: 56px;
+  align-self: flex-start;
+  min-height: calc(100vh - 56px);
+}
+
+.sidebarTitle {
+  font-size: 14px;
+  font-weight: 900;
+  color: #111111;
+  padding: 0 20px;
+  margin-bottom: 24px;
+  letter-spacing: -0.3px;
+}
+
+.stepItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 20px;
+  cursor: default;
+}
+
+.stepItemClickable {
+  cursor: pointer;
+}
+
+.stepItemActive {
+  background: #111111;
+}
+
+.stepDot {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f0f0f0;
+}
+
+.stepDotDone {
+  background: #f0fdf4;
+  border: 1.5px solid #22c55e;
+}
+
+.stepDotActive {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.stepLabel {
+  font-size: 13px;
+  font-weight: 600;
+  color: #a8a29e;
+}
+
+.stepLabelActive {
+  color: #ffffff;
+}
+
+.stepLabelDone {
+  color: #22c55e;
+}
+
+.sidebarDivider {
+  height: 1px;
+  background: #e5e5e5;
+  margin: 16px 20px 14px;
+}
+
+.helpBox {
+  padding: 8px 20px;
+}
+
+.helpTitle {
+  font-size: 12px;
+  font-weight: 600;
+  color: #a8a29e;
+}
+
+.helpDesc {
+  font-size: 12px;
+  color: #c0bdb8;
+  margin-top: 3px;
+}
+
+/* ── Main content ── */
+.main {
+  flex: 1;
+  position: relative;
+  padding-bottom: 72px;
+}
+
+.content {
+  padding: 44px 60px 20px;
+}
+
+/* ── Step: Link ── */
+.linkStep {
+  max-width: 540px;
+  margin: 40px auto 0;
+  text-align: center;
+}
+
+.linkIcon {
+  width: 60px;
+  height: 60px;
+  border-radius: 16px;
+  background: #f0f0f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 18px;
+}
+
+.linkHeading {
+  font-size: 26px;
+  font-weight: 900;
+  color: #111111;
+  margin-bottom: 10px;
+  letter-spacing: -0.4px;
+}
+
+.linkSub {
+  color: #78716c;
+  margin-bottom: 32px;
+  line-height: 1.7;
+  font-size: 14px;
+}
+
+.linkInputRow {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.linkInputBox {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #ffffff;
+  border: 1.5px solid #e5e5e5;
+  border-radius: 10px;
+  padding: 11px 14px;
+  transition: border-color 0.15s;
+}
+
+.linkInputBoxFocused {
+  border-color: #111111;
+}
+
+.linkInput {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-size: 13px;
+  color: #111111;
+  background: transparent;
+  font-family: inherit;
+}
+
+.getStartedBtn {
+  padding: 11px 22px;
+  background: linear-gradient(135deg, #111111, #383838);
+  color: #ffffff;
+  border: none;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+  font-family: inherit;
+  white-space: nowrap;
+}
+
+.skipLinkBtn {
+  background: none;
+  border: none;
+  color: #a8a29e;
+  font-size: 13px;
+  cursor: pointer;
+  font-family: inherit;
+  text-decoration: underline;
+}
+
+/* ── Generic step ── */
+.step {
+  max-width: 600px;
+}
+
+.stepHeading {
+  font-size: 24px;
+  font-weight: 900;
+  color: #111111;
+  margin-bottom: 6px;
+  letter-spacing: -0.4px;
+}
+
+.stepSub {
+  color: #78716c;
+  font-size: 13px;
+  margin-bottom: 28px;
+}
+
+.formGroup {
+  margin-bottom: 18px;
+}
+
+.formLabel {
+  font-size: 12px;
+  font-weight: 700;
+  color: #78716c;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.required {
+  color: #dc2626;
+}
+
+.textInput {
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: 9px;
+  border: 1.5px solid #e5e5e5;
+  font-size: 13px;
+  outline: none;
+  font-family: inherit;
+  color: #1c1917;
+  background: #ffffff;
+  transition: border-color 0.15s;
+}
+
+.textInput:focus {
+  border-color: #111111;
+}
+
+.sectionTitle {
+  font-size: 14px;
+  font-weight: 800;
+  color: #111111;
+  margin-bottom: 12px;
+}
+
+.twoCol {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.priceInputBox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #ffffff;
+  border: 1.5px solid #e5e5e5;
+  border-radius: 9px;
+  padding: 10px 14px;
+  transition: border-color 0.15s;
+}
+
+.priceInputBox:focus-within {
+  border-color: #111111;
+}
+
+.currencySign {
+  font-weight: 800;
+  color: #111111;
+}
+
+.priceInput {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-size: 14px;
+  font-family: inherit;
+  background: transparent;
+}
+
+.discountBadge {
+  color: #dc2626;
+  font-weight: 800;
+}
+
+.selectInput {
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: 9px;
+  border: 1.5px solid #e5e5e5;
+  font-size: 13px;
+  outline: none;
+  font-family: inherit;
+  color: #1c1917;
+  background: #ffffff;
+  cursor: pointer;
+}
+
+.toggleRow {
+  display: flex;
+  background: #ebebeb;
+  border-radius: 10px;
+  padding: 3px;
+  margin-bottom: 4px;
+}
+
+.toggleBtn {
+  flex: 1;
+  padding: 9px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  background: transparent;
+  color: #a8a29e;
+  transition: all 0.18s;
+}
+
+.toggleBtnActive {
+  background: linear-gradient(135deg, #111111, #383838);
+  color: #ffffff;
+}
+
+/* ── Image step ── */
+.dropZone {
+  border: 2px dashed #d4d4d4;
+  border-radius: 14px;
+  padding: 48px 20px;
+  text-align: center;
+  margin-bottom: 20px;
+  background: #ffffff;
+  cursor: pointer;
+}
+
+.dropIcon {
+  width: 52px;
+  height: 52px;
+  border-radius: 13px;
+  background: #f0f0f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 14px;
+}
+
+.dropTitle {
+  font-size: 14px;
+  font-weight: 700;
+  color: #111111;
+  margin-bottom: 4px;
+}
+
+.dropSub {
+  font-size: 12px;
+  color: #a8a29e;
+  margin-bottom: 14px;
+}
+
+.browseBtn {
+  padding: 8px 20px;
+  background: #f0f0f0;
+  border: 1px solid #e0e0e0;
+  border-radius: 7px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  color: #444444;
+}
+
+.urlRow {
+  display: flex;
+  gap: 8px;
+}
+
+.previewBtn {
+  padding: 10px 16px;
+  background: #f0f0f0;
+  border: 1px solid #e5e5e5;
+  border-radius: 9px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  color: #444444;
+  white-space: nowrap;
+}
+
+.imagePreview {
+  margin-top: 12px;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid #e5e5e5;
+  height: 140px;
+  background: #f5f5f5;
+}
+
+.imagePreviewImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* ── Description step ── */
+.textarea {
+  width: 100%;
+  height: 220px;
+  padding: 12px 14px;
+  border-radius: 9px;
+  border: 1.5px solid #e5e5e5;
+  font-size: 13px;
+  resize: vertical;
+  outline: none;
+  font-family: inherit;
+  line-height: 1.7;
+  color: #111111;
+  background: #ffffff;
+}
+
+.textarea:focus {
+  border-color: #111111;
+}
+
+/* ── Final details ── */
+.dateBox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #ffffff;
+  border: 1.5px solid #e5e5e5;
+  border-radius: 9px;
+  padding: 10px 14px;
+}
+
+.dateInput {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-size: 13px;
+  font-family: inherit;
+  background: transparent;
+  color: #111111;
+}
+
+.locationBox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #ffffff;
+  border: 1.5px solid #e5e5e5;
+  border-radius: 9px;
+  padding: 9px 14px;
+}
+
+.locationText {
+  flex: 1;
+  font-size: 13px;
+  color: #111111;
+}
+
+/* ── Affiliate toggle card ── */
+.affiliateCard {
+  background: #ffffff;
+  border: 1.5px solid #e5e5e5;
+  border-radius: 13px;
+  padding: 18px 20px;
+}
+
+.affiliateHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.affiliateTitle {
+  font-size: 14px;
+  font-weight: 800;
+  color: #111111;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.switch {
+  width: 46px;
+  height: 26px;
+  border-radius: 999px;
+  cursor: pointer;
+  position: relative;
+  background: #d4d4d4;
+  border: none;
+  transition: background 0.2s;
+  flex-shrink: 0;
+}
+
+.switchOn {
+  background: linear-gradient(135deg, #111111, #383838);
+}
+
+.switchKnob {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.22);
+  transition: left 0.2s;
+}
+
+.switchKnobOn {
+  left: 24px;
+}
+
+.affiliateNote {
+  font-size: 12px;
+  color: #78716c;
+  line-height: 1.6;
+}
+
+/* ── Review step ── */
+.previewCard {
+  background: #ffffff;
+  border: 1.5px solid #e5e5e5;
+  border-radius: 14px;
+  overflow: hidden;
+  margin-bottom: 18px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+}
+
+.previewImg {
+  height: 130px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 50px;
+}
+
+.previewBody {
+  padding: 14px 16px;
+}
+
+.previewTags {
+  display: flex;
+  gap: 5px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+
+.previewTag {
+  background: #ebebeb;
+  color: #555555;
+  border-radius: 5px;
+  padding: 2px 7px;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.previewTitle {
+  font-size: 14px;
+  font-weight: 700;
+  color: #111111;
+  margin-bottom: 6px;
+  line-height: 1.4;
+}
+
+.previewTitlePlaceholder {
+  color: #a8a29e;
+  font-style: italic;
+  font-weight: 400;
+}
+
+.previewPriceRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.previewPrice {
+  font-size: 20px;
+  font-weight: 900;
+  color: #111111;
+}
+
+.previewOldPrice {
+  font-size: 12px;
+  color: #a8a29e;
+  text-decoration: line-through;
+}
+
+.previewDiscount {
+  background: #dc2626;
+  color: #ffffff;
+  border-radius: 5px;
+  padding: 2px 7px;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.previewDesc {
+  font-size: 12px;
+  color: #78716c;
+  margin-top: 8px;
+  line-height: 1.5;
+}
+
+.urlSummary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #f5f5f5;
+  border: 1px solid #e5e5e5;
+  border-radius: 9px;
+  padding: 10px 14px;
+  margin-bottom: 14px;
+  font-size: 12px;
+  color: #78716c;
+  overflow: hidden;
+}
+
+.urlSummaryText {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+}
+
+.affiliateNotice {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  background: #f0f0f0;
+  border: 1px solid #e0e0e0;
+  border-radius: 10px;
+  padding: 12px 14px;
+  margin-bottom: 14px;
+}
+
+.affiliateNoticeText {
+  font-size: 13px;
+  color: #555555;
+  line-height: 1.5;
+}
+
+.submitDealBtn {
+  width: 100%;
+  padding: 14px;
+  background: linear-gradient(135deg, #111111, #2d2d2d);
+  color: #ffffff;
+  border: none;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 900;
+  cursor: pointer;
+  font-family: inherit;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.22);
+  transition: box-shadow 0.2s;
+}
+
+.submitDealBtn:hover {
+  box-shadow: 0 8px 26px rgba(0, 0, 0, 0.3);
+}
+
+.submitDealBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.submitError {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 9px;
+  padding: 10px 12px;
+  font-size: 12.5px;
+  color: #dc2626;
+  font-weight: 600;
+  margin-bottom: 14px;
+}
+
+/* ── Bottom nav ── */
+.bottomNav {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 60px;
+  background: #ffffff;
+  border-top: 1px solid #e5e5e5;
+}
+
+.backBtn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 20px;
+  background: #ffffff;
+  border: 1.5px solid #e5e5e5;
+  border-radius: 9px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  color: #555555;
+  font-family: inherit;
+}
+
+.stepIndicator {
+  font-size: 12px;
+  color: #a8a29e;
+}
+
+.nextBtn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 24px;
+  background: linear-gradient(135deg, #111111, #383838);
+  color: #ffffff;
+  border: none;
+  border-radius: 9px;
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+/* ── Success screen ── */
+.successWrap {
+  max-width: 480px;
+  margin: 80px auto;
+  text-align: center;
+  padding: 0 20px;
+}
+
+.successIcon {
+  width: 76px;
+  height: 76px;
+  border-radius: 50%;
+  background: #f0fdf4;
+  border: 2px solid #22c55e;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 18px;
+}
+
+.successTitle {
+  font-size: 26px;
+  font-weight: 900;
+  margin-bottom: 8px;
+  color: #111111;
+}
+
+.successDesc {
+  color: #78716c;
+  font-size: 14px;
+  line-height: 1.7;
+  margin-bottom: 28px;
+  max-width: 340px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.successLinkBox {
+  background: #f5f5f5;
+  border: 1px solid #e5e5e5;
+  border-radius: 10px;
+  padding: 12px 16px;
+  margin-bottom: 20px;
+  font-size: 12px;
+  color: #666666;
+  font-family: monospace;
+  word-break: break-all;
+}
+
+.successBtn {
+  padding: 12px 28px;
+  background: linear-gradient(135deg, #111111, #383838);
+  color: #ffffff;
+  border: none;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+  font-family: inherit;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  text-decoration: none;
+}
+
+/* ═══════════════════════════════════════
+   RESPONSIVE
+═══════════════════════════════════════ */
+@media (max-width: 860px) {
+  .layout {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    width: 100%;
+    position: static;
+    min-height: auto;
+    padding: 16px 0;
+    display: flex;
+    overflow-x: auto;
+  }
+
+  .sidebarTitle {
+    display: none;
+  }
+
+  .stepItem {
+    flex-direction: column;
+    gap: 4px;
+    padding: 8px 14px;
+    white-space: nowrap;
+  }
+
+  .sidebarDivider,
+  .helpBox {
+    display: none;
+  }
+
+  .content {
+    padding: 28px 20px;
+  }
+
+  .bottomNav {
+    padding: 14px 20px;
+  }
+
+  .twoCol {
+    grid-template-columns: 1fr;
+  }
+}

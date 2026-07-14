@@ -1,0 +1,343 @@
+/* ═══════════════════════════════════════
+   HOME PAGE
+═══════════════════════════════════════ */
+.page {
+  min-height: 80vh;
+}
+
+/* ── Hero ── */
+.hero {
+  background: linear-gradient(135deg, #111111 0%, #1a1a1a 55%, #2d2d2d 100%);
+  padding: 32px 20px;
+  color: #ffffff;
+  position: relative;
+  overflow: hidden;
+}
+
+.heroOverlay1 {
+  position: absolute;
+  top: -60px;
+  right: 160px;
+  width: 240px;
+  height: 240px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.04);
+  pointer-events: none;
+}
+
+.heroOverlay2 {
+  position: absolute;
+  bottom: -40px;
+  right: -40px;
+  width: 160px;
+  height: 160px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.03);
+  pointer-events: none;
+}
+
+.heroInner {
+  max-width: 1080px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 0 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+  position: relative;
+}
+
+.heroContent {
+  flex: 1;
+}
+
+.heroBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 20px;
+  padding: 3px 12px;
+  font-size: 11px;
+  font-weight: 700;
+  margin-bottom: 12px;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.heroTitle {
+  font-size: 28px;
+  font-weight: 900;
+  line-height: 1.2;
+  letter-spacing: -0.5px;
+  margin-bottom: 10px;
+}
+
+.heroTitleAccent {
+  color: #c8c8c8;
+}
+
+.heroDesc {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.75);
+  line-height: 1.6;
+  margin-bottom: 20px;
+  max-width: 420px;
+}
+
+.heroStats {
+  display: flex;
+  gap: 28px;
+}
+
+.heroStat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.heroStatVal {
+  font-size: 18px;
+  font-weight: 900;
+}
+
+.heroStatLabel {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+/* ── Main content ── */
+.main {
+  max-width: 1080px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 22px 20px 40px;
+}
+
+/* ── Sort bar ── */
+.sortBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.sortBarLeft {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.sortTitle {
+  font-size: 16px;
+  font-weight: 800;
+  color: #111111;
+}
+
+.sortCount {
+  font-size: 13px;
+  color: #a8a29e;
+  font-weight: 400;
+}
+
+.sortBtns {
+  display: flex;
+  gap: 3px;
+  background: #ffffff;
+  border: 1px solid #e5e5e5;
+  border-radius: 9px;
+  padding: 3px;
+}
+
+.sortBtn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 12px;
+  border-radius: 7px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  color: #78716c;
+  font-family: inherit;
+  transition: all 0.15s;
+}
+
+.sortBtn:hover {
+  color: #111111;
+}
+
+.sortBtnActive {
+  background: #111111;
+  color: #ffffff;
+}
+
+/* ── Deal grid ── */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+}
+
+/* ── Loading skeleton ── */
+.skeleton {
+  background: #ffffff;
+  border-radius: 14px;
+  border: 1px solid #e5e5e5;
+  overflow: hidden;
+}
+
+.skeletonImg {
+  height: 156px;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.3s linear infinite;
+}
+
+.skeletonBody {
+  padding: 13px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.skeletonLine {
+  height: 12px;
+  border-radius: 6px;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.3s linear infinite;
+}
+
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position:  200% 0; }
+}
+
+/* ── Error / Empty states ── */
+.stateBox {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 60px 20px;
+  color: #a8a29e;
+}
+
+.stateIcon {
+  font-size: 48px;
+  margin-bottom: 14px;
+}
+
+.stateTitle {
+  font-size: 16px;
+  font-weight: 700;
+  color: #78716c;
+  margin-bottom: 6px;
+}
+
+.stateDesc {
+  font-size: 14px;
+}
+
+.retryBtn {
+  margin-top: 16px;
+  padding: 9px 24px;
+  background: #111111;
+  color: #ffffff;
+  border: none;
+  border-radius: 9px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+/* ── Post a deal CTA banner ── */
+.ctaBanner {
+  grid-column: 1 / -1;
+  background: #ffffff;
+  border: 1.5px solid #e5e5e5;
+  border-radius: 14px;
+  padding: 20px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 6px;
+}
+
+.ctaTitle {
+  font-size: 15px;
+  font-weight: 800;
+  color: #111111;
+  margin-bottom: 3px;
+}
+
+.ctaDesc {
+  font-size: 13px;
+  color: #78716c;
+}
+
+.ctaBtn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 22px;
+  background: linear-gradient(135deg, #111111, #383838);
+  color: #ffffff;
+  border: none;
+  border-radius: 9px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  flex-shrink: 0;
+  text-decoration: none;
+  transition: box-shadow 0.2s;
+}
+
+.ctaBtn:hover {
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+}
+
+/* ═══════════════════════════════════════
+   RESPONSIVE
+═══════════════════════════════════════ */
+@media (max-width: 1024px) {
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 767px) {
+  .heroInner {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 0;
+  }
+
+  .heroTitle {
+    font-size: 22px;
+  }
+
+  .heroStats {
+    gap: 20px;
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .ctaBanner {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .ctaBtn {
+    width: 100%;
+    justify-content: center;
+  }
+}
