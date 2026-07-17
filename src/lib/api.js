@@ -5,7 +5,6 @@ const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
-  withCredentials: true,
 });
 
 // Automatically attach JWT token to every request if it exists

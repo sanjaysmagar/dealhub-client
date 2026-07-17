@@ -18,7 +18,7 @@ import {
   ChevronDown,
   Shield,
 } from "lucide-react";
-import { logoutUser } from "@/store/slices/authSlice";
+import { logout } from "@/store/slices/authSlice";
 import styles from "./Navbar.module.css";
 
 const NAV_LINKS = [
@@ -76,8 +76,8 @@ export default function Navbar() {
     }
   };
 
-  const handleLogout = async () => {
-    await dispatch(logoutUser());
+  const handleLogout = () => {
+    dispatch(logout());
     setUserMenuOpen(false);
     window.location.href = "/";
   };
