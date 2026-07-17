@@ -127,6 +127,20 @@ export const voteDeal = createAsyncThunk(
   },
 );
 
+export const fetchFeaturedDeal = createAsyncThunk(
+  "deals/fetchFeatured",
+  async (_, { rejectWithValue }) => {
+    try {
+      const { data } = await api.get("/deals/featured");
+      return data;
+    } catch (err) {
+      return rejectWithValue(
+        err.response?.data?.message || "Failed to fetch featured deal",
+      );
+    }
+  },
+);
+
 const dealsSlice = createSlice({
   name: "deals",
   initialState: {
@@ -136,6 +150,7 @@ const dealsSlice = createSlice({
     adminCounts: { total: 0, approved: 0, rejected: 0 },
     adminPagination: {},
     currentDeal: null,
+    featuredDeal: null,
     pagination: {},
     loading: false,
     error: null,
@@ -186,10 +201,12 @@ const dealsSlice = createSlice({
       if (idx !== -1) state.myDeals[idx] = action.payload;
     });
 
-builder.addCase(deleteDeal.fulfilled, (state, action) => {
-  state.myDeals    = state.myDeals.filter(d => d._id !== action.payload);
-  state.adminDeals = state.adminDeals.filter(d => d._id !== action.payload);
-});
+    builder.addCase(deleteDeal.fulfilled, (state, action) => {
+      state.myDeals = state.myDeals.filter((d) => d._id !== action.payload);
+      state.adminDeals = state.adminDeals.filter(
+        (d) => d._id !== action.payload,
+      );
+    });
 
     // Vote — update the deal in the list
     builder.addCase(voteDeal.fulfilled, (state, action) => {
@@ -215,6 +232,9 @@ builder.addCase(deleteDeal.fulfilled, (state, action) => {
         (d) => d._id === action.payload._id,
       );
       if (idx !== -1) state.adminDeals[idx] = action.payload;
+    });
+    builder.addCase(fetchFeaturedDeal.fulfilled, (state, action) => {
+      state.featuredDeal = action.payload;
     });
   },
 });

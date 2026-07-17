@@ -1,24 +1,35 @@
-'use client';
+"use client";
 
-import { useEffect } from 'react';
-import Link from 'next/link';
-import { useDispatch, useSelector } from 'react-redux';
-import { Flame, Clock, TrendingUp, Plus, Zap, Construction } from 'lucide-react';
-import { fetchDeals, setFilter } from '@/store/slices/dealsSlice';
-import CategoryStrip from '@/components/layout/CategoryStrip';
-import DealCard from '@/components/deals/DealCard';
-import styles from './page.module.css';
+import { useEffect } from "react";
+import Link from "next/link";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  Flame,
+  Clock,
+  TrendingUp,
+  Plus,
+  Zap,
+  Construction,
+} from "lucide-react";
+import {
+  fetchDeals,
+  setFilter,
+  fetchFeaturedDeal,
+} from "@/store/slices/dealsSlice";
+import CategoryStrip from "@/components/layout/CategoryStrip";
+import DealCard from "@/components/deals/DealCard";
+import styles from "./page.module.css";
 
 const SORT_OPTIONS = [
-  { key: 'hot', label: 'Hot',  Icon: Flame      },
-  { key: 'new', label: 'New',  Icon: Clock      },
-  { key: 'top', label: 'Top',  Icon: TrendingUp },
+  { key: "hot", label: "Hot", Icon: Flame },
+  { key: "new", label: "New", Icon: Clock },
+  { key: "top", label: "Top", Icon: TrendingUp },
 ];
 
 const HERO_STATS = [
-  { value: '2,847', label: 'Deals live'  },
-  { value: '15.4K', label: 'Members'     },
-  { value: '£1.2M', label: 'Total saved' },
+  { value: "2,847", label: "Deals live" },
+  { value: "15.4K", label: "Members" },
+  { value: "£1.2M", label: "Total saved" },
 ];
 
 function SkeletonCard() {
@@ -26,10 +37,13 @@ function SkeletonCard() {
     <div className={styles.skeleton}>
       <div className={styles.skeletonImg} />
       <div className={styles.skeletonBody}>
-        <div className={styles.skeletonLine} style={{ width: '60%' }} />
-        <div className={styles.skeletonLine} style={{ width: '100%' }} />
-        <div className={styles.skeletonLine} style={{ width: '80%' }} />
-        <div className={styles.skeletonLine} style={{ width: '40%', marginTop: '4px' }} />
+        <div className={styles.skeletonLine} style={{ width: "60%" }} />
+        <div className={styles.skeletonLine} style={{ width: "100%" }} />
+        <div className={styles.skeletonLine} style={{ width: "80%" }} />
+        <div
+          className={styles.skeletonLine}
+          style={{ width: "40%", marginTop: "4px" }}
+        />
       </div>
     </div>
   );
@@ -37,18 +51,23 @@ function SkeletonCard() {
 
 export default function HomeClient() {
   const dispatch = useDispatch();
-  const { deals, loading, error, filters, pagination } = useSelector((s) => s.deals);
+  const { deals, featuredDeal, loading, error, filters, pagination } =
+    useSelector((s) => s.deals);
 
   useEffect(() => {
     const params = {
-      sort:  filters.sort,
-      page:  filters.page,
+      sort: filters.sort,
+      page: filters.page,
       limit: 9,
-      ...(filters.category !== 'All' && { category: filters.category }),
+      ...(filters.category !== "All" && { category: filters.category }),
       ...(filters.search && { search: filters.search }),
     };
     dispatch(fetchDeals(params));
   }, [dispatch, filters.category, filters.sort, filters.search, filters.page]);
+
+  useEffect(() => {
+    dispatch(fetchFeaturedDeal());
+  }, [dispatch]);
 
   const handleSort = (key) => dispatch(setFilter({ sort: key }));
 
@@ -57,28 +76,29 @@ export default function HomeClient() {
 
   return (
     <div className={styles.page}>
-
       {/* Hero */}
       <section className={styles.hero}>
         <div className={styles.heroOverlay1} />
         <div className={styles.heroOverlay2} />
         <div className={styles.heroInner}>
           <div className={styles.heroContent}>
-             <div className={styles.heroBadge}>
+            <div className={styles.heroBadge}>
               <Construction size={11} strokeWidth={3} />
-              Under Development: The platform is still in development, so some features may not work as expected.
+              Under Development: The platform is still in development, so some
+              features may not work as expected.
             </div>
             {/* <div className={styles.heroBadge}>
               <Zap size={11} strokeWidth={3} />
               UK&apos;s #1 Community Deals Platform
             </div> */}
             <h1 className={styles.heroTitle}>
-              Find deals. Share links.<br />
+              Find deals. Share links.
+              <br />
               <span className={styles.heroTitleAccent}>Earn real rewards.</span>
             </h1>
             <p className={styles.heroDesc}>
-              Post deals, generate your personal affiliate link, and earn
-              points every time someone shops through it.
+              Post deals, generate your personal affiliate link, and earn points
+              every time someone shops through it.
             </p>
             <div className={styles.heroStats}>
               {HERO_STATS.map((s) => (
@@ -97,12 +117,13 @@ export default function HomeClient() {
 
       {/* Main content */}
       <main className={styles.main}>
-
         {/* Sort bar */}
         <div className={styles.sortBar}>
           <div className={styles.sortBarLeft}>
             <span className={styles.sortTitle}>
-              {filters.category === 'All' ? 'Hot Deals' : `${filters.category} Deals`}
+              {filters.category === "All"
+                ? "Hot Deals"
+                : `${filters.category} Deals`}
             </span>
             {pagination?.total > 0 && (
               <span className={styles.sortCount}>{pagination.total} deals</span>
@@ -113,7 +134,7 @@ export default function HomeClient() {
               <button
                 key={key}
                 onClick={() => handleSort(key)}
-                className={`${styles.sortBtn} ${filters.sort === key ? styles.sortBtnActive : ''}`}
+                className={`${styles.sortBtn} ${filters.sort === key ? styles.sortBtnActive : ""}`}
               >
                 <Icon size={12} strokeWidth={filters.sort === key ? 2.5 : 2} />
                 {label}
@@ -124,10 +145,8 @@ export default function HomeClient() {
 
         {/* Grid */}
         <div className={styles.grid}>
-
-          {loading && Array.from({ length: 9 }).map((_, i) => (
-            <SkeletonCard key={i} />
-          ))}
+          {loading &&
+            Array.from({ length: 9 }).map((_, i) => <SkeletonCard key={i} />)}
 
           {!loading && error && (
             <div className={styles.stateBox}>
@@ -145,16 +164,18 @@ export default function HomeClient() {
               <div className={styles.stateIcon}>🔍</div>
               <div className={styles.stateTitle}>No deals found</div>
               <div className={styles.stateDesc}>
-                {filters.category !== 'All'
+                {filters.category !== "All"
                   ? `No ${filters.category} deals yet. Be the first!`
-                  : 'No deals yet. Post the first deal!'}
+                  : "No deals yet. Post the first deal!"}
               </div>
             </div>
           )}
 
-          {!loading && !error && deals.map((deal, i) => (
-            <DealCard key={deal._id} deal={deal} index={i} />
-          ))}
+          {!loading &&
+            !error &&
+            deals.map((deal, i) => (
+              <DealCard key={deal._id} deal={deal} index={i} />
+            ))}
 
           {!loading && !error && deals.length > 0 && (
             <div className={styles.ctaBanner}>
