@@ -49,8 +49,11 @@ export default function DealCard({ deal, index = 0 }) {
   const [userVote, setUserVote] = useState(null); // 'up' | 'down' | null
   const [isSaved,  setIsSaved]  = useState(false);
 
-  const score = (deal.votes?.up || 0) - (deal.votes?.down || 0);
-  const heatColor = getHeatColor(score + (userVote === 'up' ? 1 : userVote === 'down' ? -1 : 0));
+  // const score = (deal.votes?.up || 0) - (deal.votes?.down || 0);
+  // const heatColor = getHeatColor(score + (userVote === 'up' ? 1 : userVote === 'down' ? -1 : 0));
+// Trust the real, already-updated data from Redux — no manual adjustment needed
+const displayScore = deal.score ?? ((deal.votes?.up || 0) - (deal.votes?.down || 0));
+const heatColor = getHeatColor(displayScore);
   const catStyle  = CAT_STYLES[deal.category] || CAT_STYLES.Other;
 
   const handleVote = async (type) => {
@@ -65,9 +68,12 @@ export default function DealCard({ deal, index = 0 }) {
     router.push(`/deals/${deal._id}`);
   };
 
-  const upCount   = (deal.votes?.up   || 0) + (userVote === 'up'   ? 1 : userVote === 'down' ? 0 : 0);
-  const downCount = (deal.votes?.down || 0) + (userVote === 'down'  ? 1 : userVote === 'up'   ? 0 : 0);
-  const displayScore = score + (userVote === 'up' ? 1 : userVote === 'down' ? -1 : 0);
+  // const upCount   = (deal.votes?.up   || 0) + (userVote === 'up'   ? 1 : userVote === 'down' ? 0 : 0);
+  // const downCount = (deal.votes?.down || 0) + (userVote === 'down'  ? 1 : userVote === 'up'   ? 0 : 0);
+  // const displayScore = score + (userVote === 'up' ? 1 : userVote === 'down' ? -1 : 0);
+
+  const upCount   = deal.votes?.up   || 0;
+const downCount = deal.votes?.down || 0;
 
   return (
     <div className={styles.card} style={{ animationDelay: `${index * 0.06}s` }}>

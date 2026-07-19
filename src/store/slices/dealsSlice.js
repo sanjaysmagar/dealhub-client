@@ -141,6 +141,20 @@ export const fetchFeaturedDeal = createAsyncThunk(
   },
 );
 
+export const fetchStats = createAsyncThunk(
+  "deals/fetchStats",
+  async (_, { rejectWithValue }) => {
+    try {
+      const { data } = await api.get("/deals/stats");
+      return data;
+    } catch (err) {
+      return rejectWithValue(
+        err.response?.data?.message || "Failed to fetch stats",
+      );
+    }
+  },
+);
+
 const dealsSlice = createSlice({
   name: "deals",
   initialState: {
@@ -151,6 +165,7 @@ const dealsSlice = createSlice({
     adminPagination: {},
     currentDeal: null,
     featuredDeal: null,
+    stats: { totalDeals: 0, totalMembers: 0, totalSaved: 0 },
     pagination: {},
     loading: false,
     error: null,
@@ -235,6 +250,9 @@ const dealsSlice = createSlice({
     });
     builder.addCase(fetchFeaturedDeal.fulfilled, (state, action) => {
       state.featuredDeal = action.payload;
+    });
+    builder.addCase(fetchStats.fulfilled, (state, action) => {
+      state.stats = action.payload;
     });
   },
 });

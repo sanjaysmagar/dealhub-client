@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Search, X, Flame, Clock, TrendingUp, ChevronLeft, ChevronRight } from 'lucide-react';
 import { fetchDeals, setFilter } from '@/store/slices/dealsSlice';
-import CategoryStrip from '@/components/layout/CategoryStrip';
+import CategoryDropdown from '@/components/layout/CategoryDropdown';
 import DealCard from '@/components/deals/DealCard';
 import styles from './page.module.css';
 
@@ -88,7 +88,6 @@ export default function DealsClient() {
 
   return (
     <div className={styles.wrap}>
-      <CategoryStrip />
 
       <div className={styles.main}>
         <div className={styles.headerRow}>
@@ -121,6 +120,7 @@ export default function DealsClient() {
         </form>
 
         {/* Sort bar */}
+{/* Sort bar */}
         <div className={styles.sortBar}>
           <div className={styles.resultsCount}>
             {pagination?.total > 0 && (
@@ -130,17 +130,20 @@ export default function DealsClient() {
               </>
             )}
           </div>
-          <div className={styles.sortBtns}>
-            {SORT_OPTIONS.map(({ key, label, Icon }) => (
-              <button
-                key={key}
-                onClick={() => handleSort(key)}
-                className={`${styles.sortBtn} ${filters.sort === key ? styles.sortBtnActive : ''}`}
-              >
-                <Icon size={12} strokeWidth={filters.sort === key ? 2.5 : 2} />
-                {label}
-              </button>
-            ))}
+          <div className={styles.sortBarRight}>
+            <CategoryDropdown />
+            <div className={styles.sortBtns}>
+              {SORT_OPTIONS.map(({ key, label, Icon }) => (
+                <button
+                  key={key}
+                  onClick={() => handleSort(key)}
+                  className={`${styles.sortBtn} ${filters.sort === key ? styles.sortBtnActive : ''}`}
+                >
+                  <Icon size={12} strokeWidth={filters.sort === key ? 2.5 : 2} />
+                  {label}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
 

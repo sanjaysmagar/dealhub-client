@@ -87,13 +87,19 @@ export default function DetailClient({ dealId }) {
   }
 
   const catStyle = CAT_STYLES[deal.category] || CAT_STYLES.Other;
-  const baseScore = (deal.votes?.up || 0) - (deal.votes?.down || 0);
-  const score =
-    baseScore + (userVote === "up" ? 1 : userVote === "down" ? -1 : 0);
-  const hc = heatColor(score);
+  // const baseScore = (deal.votes?.up || 0) - (deal.votes?.down || 0);
+  // const score =
+  //   baseScore + (userVote === "up" ? 1 : userVote === "down" ? -1 : 0);
+  // const hc = heatColor(score);
 
-  const upCount = (deal.votes?.up || 0) + (userVote === "up" ? 1 : 0);
-  const downCount = (deal.votes?.down || 0) + (userVote === "down" ? 1 : 0);
+  // const upCount = (deal.votes?.up || 0) + (userVote === "up" ? 1 : 0);
+  // const downCount = (deal.votes?.down || 0) + (userVote === "down" ? 1 : 0);
+
+  const score = deal.score ?? ((deal.votes?.up || 0) - (deal.votes?.down || 0));
+const hc = heatColor(score);
+
+const upCount   = deal.votes?.up   || 0;
+const downCount = deal.votes?.down || 0;
 
   const handleVote = (type) => {
     if (!user) {

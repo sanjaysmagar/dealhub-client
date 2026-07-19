@@ -15,10 +15,12 @@ import {
   fetchDeals,
   setFilter,
   fetchFeaturedDeal,
+  fetchStats,
 } from "@/store/slices/dealsSlice";
-import CategoryStrip from "@/components/layout/CategoryStrip";
+import CategoryDropdown from "@/components/layout/CategoryDropdown";
 import DealCard from "@/components/deals/DealCard";
 import styles from "./page.module.css";
+import { CAT_STYLES, formatPrice, formatCount } from "@/lib/utils";
 
 const SORT_OPTIONS = [
   { key: "hot", label: "Hot", Icon: Flame },
@@ -26,11 +28,11 @@ const SORT_OPTIONS = [
   { key: "top", label: "Top", Icon: TrendingUp },
 ];
 
-const HERO_STATS = [
-  { value: "2,847", label: "Deals live" },
-  { value: "15.4K", label: "Members" },
-  { value: "£1.2M", label: "Total saved" },
-];
+// const HERO_STATS = [
+//   { value: "2,847", label: "Deals live" },
+//   { value: "15.4K", label: "Members" },
+//   { value: "£1.2M", label: "Total saved" },
+// ];
 
 function SkeletonCard() {
   return (
@@ -51,7 +53,7 @@ function SkeletonCard() {
 
 export default function HomeClient() {
   const dispatch = useDispatch();
-  const { deals, featuredDeal, loading, error, filters, pagination } =
+  const { deals, featuredDeal, stats, loading, error, filters, pagination } =
     useSelector((s) => s.deals);
 
   useEffect(() => {
@@ -69,6 +71,10 @@ export default function HomeClient() {
     dispatch(fetchFeaturedDeal());
   }, [dispatch]);
 
+  useEffect(() => {
+    dispatch(fetchStats());
+  }, [dispatch]);
+
   const handleSort = (key) => dispatch(setFilter({ sort: key }));
 
   const handleRetry = () =>
@@ -80,44 +86,86 @@ export default function HomeClient() {
       <section className={styles.hero}>
         <div className={styles.heroOverlay1} />
         <div className={styles.heroOverlay2} />
-        <div className={styles.heroInner}>
-          <div className={styles.heroContent}>
-            <div className={styles.heroBadge}>
-              <Construction size={11} strokeWidth={3} />
-              Under Development: The platform is still in development, so some
-              features may not work as expected.
+
+        <div className={styles.heroContent}>
+          <div className={styles.heroBadge}>
+            <Construction size={11} strokeWidth={3} />
+            Under Development: The platform is still in development, so some
+            features may not work as expected.
+          </div>
+          <h1 className={styles.heroTitle}>
+            Find deals. Share links.
+            <br />
+            <span className={styles.heroTitleAccent}>Earn real rewards.</span>
+          </h1>
+          <p className={styles.heroDesc}>
+            Post deals, generate your personal affiliate link, and earn points
+            every time someone shops through it.
+          </p>
+          {/* <div className={styles.heroStats}>
+            {HERO_STATS.map((s) => (
+              <div key={s.label} className={styles.heroStat}>
+                <span className={styles.heroStatVal}>{s.value}</span>
+                <span className={styles.heroStatLabel}>{s.label}</span>
+              </div>
+            ))}
+          </div> */}
+          <div className={styles.heroStats}>
+            <div className={styles.heroStat}>
+              <span className={styles.heroStatVal}>
+                {formatCount(stats.totalDeals)}
+              </span>
+              <span className={styles.heroStatLabel}>Deals live</span>
             </div>
-            {/* <div className={styles.heroBadge}>
-              <Zap size={11} strokeWidth={3} />
-              UK&apos;s #1 Community Deals Platform
-            </div> */}
-            <h1 className={styles.heroTitle}>
-              Find deals. Share links.
-              <br />
-              <span className={styles.heroTitleAccent}>Earn real rewards.</span>
-            </h1>
-            <p className={styles.heroDesc}>
-              Post deals, generate your personal affiliate link, and earn points
-              every time someone shops through it.
-            </p>
-            <div className={styles.heroStats}>
-              {HERO_STATS.map((s) => (
-                <div key={s.label} className={styles.heroStat}>
-                  <span className={styles.heroStatVal}>{s.value}</span>
-                  <span className={styles.heroStatLabel}>{s.label}</span>
-                </div>
-              ))}
+            <div className={styles.heroStat}>
+              <span className={styles.heroStatVal}>
+                {formatCount(stats.totalMembers)}
+              </span>
+              <span className={styles.heroStatLabel}>Members</span>
+            </div>
+            <div className={styles.heroStat}>
+              <span className={styles.heroStatVal}>
+                {formatPrice(stats.totalSaved)}
+              </span>
+              <span className={styles.heroStatLabel}>Total saved</span>
             </div>
           </div>
         </div>
-      </section>
 
-      {/* Category strip */}
-      <CategoryStrip />
+        {featuredDeal && (
+          <Link
+            href={`/deals/${featuredDeal._id}`}
+            className={styles.heroFeatured}
+          >
+            <div className={styles.heroFeaturedLabel}>
+              <Flame size={11} strokeWidth={2.5} />
+              Featured Deal
+            </div>
+            <div className={styles.heroFeaturedEmoji}>
+              {CAT_STYLES[featuredDeal.category]?.emoji || "🎁"}
+            </div>
+            <div className={styles.heroFeaturedTitle}>{featuredDeal.title}</div>
+            <div className={styles.heroFeaturedPriceRow}>
+              <span className={styles.heroFeaturedPrice}>
+                {formatPrice(featuredDeal.discountedPrice)}
+              </span>
+              <span className={styles.heroFeaturedOldPrice}>
+                {formatPrice(featuredDeal.originalPrice)}
+              </span>
+              {featuredDeal.discountPercent > 0 && (
+                <span className={styles.heroFeaturedDiscount}>
+                  -{featuredDeal.discountPercent}%
+                </span>
+              )}
+            </div>
+          </Link>
+        )}
+      </section>
 
       {/* Main content */}
       <main className={styles.main}>
         {/* Sort bar */}
+
         <div className={styles.sortBar}>
           <div className={styles.sortBarLeft}>
             <span className={styles.sortTitle}>
@@ -129,17 +177,23 @@ export default function HomeClient() {
               <span className={styles.sortCount}>{pagination.total} deals</span>
             )}
           </div>
-          <div className={styles.sortBtns}>
-            {SORT_OPTIONS.map(({ key, label, Icon }) => (
-              <button
-                key={key}
-                onClick={() => handleSort(key)}
-                className={`${styles.sortBtn} ${filters.sort === key ? styles.sortBtnActive : ""}`}
-              >
-                <Icon size={12} strokeWidth={filters.sort === key ? 2.5 : 2} />
-                {label}
-              </button>
-            ))}
+          <div className={styles.sortBarRight}>
+            <CategoryDropdown />
+            <div className={styles.sortBtns}>
+              {SORT_OPTIONS.map(({ key, label, Icon }) => (
+                <button
+                  key={key}
+                  onClick={() => handleSort(key)}
+                  className={`${styles.sortBtn} ${filters.sort === key ? styles.sortBtnActive : ""}`}
+                >
+                  <Icon
+                    size={12}
+                    strokeWidth={filters.sort === key ? 2.5 : 2}
+                  />
+                  {label}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
 

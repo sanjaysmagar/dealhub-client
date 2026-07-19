@@ -82,6 +82,13 @@ export default function Navbar() {
     window.location.href = "/";
   };
 
+  const handlePostDealClick = (e) => {
+    if (!user) {
+      e.preventDefault();
+      window.location.href = "/login";
+    }
+  };
+
   return (
     <>
       {/* ════════════ NAVBAR ════════════ */}
@@ -129,15 +136,21 @@ export default function Navbar() {
           </form>
 
           {/* Desktop Post a Deal */}
-          <Link href="/post-type" className={styles.postBtn}>
+          <Link
+            href="/post-type"
+            className={styles.postBtn}
+            onClick={handlePostDealClick}
+          >
             <Plus size={13} strokeWidth={2.5} />
             Post a Deal
           </Link>
 
           {/* Desktop Bell */}
-          <button className={styles.iconBtn}>
-            <Bell size={15} color="#78716c" strokeWidth={2} />
-          </button>
+          {user && (
+            <button className={styles.iconBtn}>
+              <Bell size={15} color="#78716c" strokeWidth={2} />
+            </button>
+          )}
 
           {/* Right section */}
           <div className={styles.rightSection}>
@@ -285,7 +298,11 @@ export default function Navbar() {
         <div className={styles.mobileDivider} />
 
         {/* Mobile Post a Deal */}
-        <Link href="/post-type" className={styles.mobilePostBtn}>
+        <Link
+          href="/post"
+          className={styles.mobilePostBtn}
+          onClick={handlePostDealClick}
+        >
           <Plus size={15} strokeWidth={2.5} />
           Post a Deal
         </Link>
