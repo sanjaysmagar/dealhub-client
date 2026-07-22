@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -55,6 +55,7 @@ export default function HomeClient() {
   const dispatch = useDispatch();
   const { deals, featuredDeal, stats, loading, error, filters, pagination } =
     useSelector((s) => s.deals);
+  const [featImgError, setFeatImgError] = useState(false);
 
   useEffect(() => {
     const params = {
@@ -141,9 +142,18 @@ export default function HomeClient() {
               <Flame size={11} strokeWidth={2.5} />
               Featured Deal
             </div>
-            <div className={styles.heroFeaturedEmoji}>
-              {CAT_STYLES[featuredDeal.category]?.emoji || "🎁"}
-            </div>
+            {featuredDeal.imageUrl && !featImgError ? (
+              <img
+                src={featuredDeal.imageUrl}
+                alt={featuredDeal.title}
+                className={styles.heroFeaturedImg}
+                onError={() => setFeatImgError(true)}
+              />
+            ) : (
+              <div className={styles.heroFeaturedEmoji}>
+                {CAT_STYLES[featuredDeal.category]?.emoji || "🎁"}
+              </div>
+            )}
             <div className={styles.heroFeaturedTitle}>{featuredDeal.title}</div>
             <div className={styles.heroFeaturedPriceRow}>
               <span className={styles.heroFeaturedPrice}>

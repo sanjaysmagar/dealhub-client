@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useDispatch, useSelector } from "react-redux";
 import {
   ChevronRight,
+  ChevronLeft,
   Flame,
   Snowflake,
   Heart,
@@ -47,6 +48,13 @@ export default function DetailClient({ dealId }) {
   const [userVote, setUserVote] = useState(null);
   const [isSaved, setIsSaved] = useState(false);
   const [copied, setCopied] = useState(false);
+const [imgError, setImgError] = useState(false);
+const [selectedImg, setSelectedImg] = useState(0);
+const [thumbStart, setThumbStart] = useState(0);
+
+const THUMB_SIZE = 52;
+const THUMB_GAP = 8;
+const VISIBLE_THUMBS = 4;
 
   useEffect(() => {
     dispatch(fetchDealById(dealId));
@@ -86,20 +94,31 @@ export default function DetailClient({ dealId }) {
     );
   }
 
-  const catStyle = CAT_STYLES[deal.category] || CAT_STYLES.Other;
-  // const baseScore = (deal.votes?.up || 0) - (deal.votes?.down || 0);
-  // const score =
-  //   baseScore + (userVote === "up" ? 1 : userVote === "down" ? -1 : 0);
-  // const hc = heatColor(score);
+const catStyle = CAT_STYLES[deal.category] || CAT_STYLES.Other;
 
-  // const upCount = (deal.votes?.up || 0) + (userVote === "up" ? 1 : 0);
-  // const downCount = (deal.votes?.down || 0) + (userVote === "down" ? 1 : 0);
+// Works for both new deals (full images array) and older deals
+// (only a single imageUrl was ever saved) — falls back gracefully either way.
+const galleryImages = deal.images?.length > 0
+  ? deal.images
+  : (deal.imageUrl ? [deal.imageUrl] : []);
+
+const activeImage = galleryImages[selectedImg] || galleryImages[0];
+
+const maxThumbStart = Math.max(0, galleryImages.length - VISIBLE_THUMBS);
+const canScrollLeft = thumbStart > 0;
+const canScrollRight = thumbStart < maxThumbStart;
+
+const scrollThumbsLeft = () => setThumbStart((s) => Math.max(0, s - 1));
+const scrollThumbsRight = () => setThumbStart((s) => Math.min(maxThumbStart, s + 1));
+
+const visibleThumbCount = Math.min(galleryImages.length, VISIBLE_THUMBS);
+const thumbViewportWidth = visibleThumbCount * THUMB_SIZE + (visibleThumbCount - 1) * THUMB_GAP;
 
   const score = deal.score ?? ((deal.votes?.up || 0) - (deal.votes?.down || 0));
-const hc = heatColor(score);
+  const hc = heatColor(score);
 
-const upCount   = deal.votes?.up   || 0;
-const downCount = deal.votes?.down || 0;
+  const upCount = deal.votes?.up || 0;
+  const downCount = deal.votes?.down || 0;
 
   const handleVote = (type) => {
     if (!user) {
@@ -150,12 +169,17 @@ const downCount = deal.votes?.down || 0;
           {/* ══════════ LEFT COLUMN ══════════ */}
           <div>
             {/* Image */}
-            <div
-              className={styles.imageBox}
-              style={{ background: catStyle.gradient }}
-            >
-              <span>{catStyle.emoji}</span>
-
+<div className={styles.imageBox} style={{ background: catStyle.gradient }}>
+              {activeImage && !imgError ? (
+                <img
+                  src={activeImage}
+                  alt={deal.title}
+                  className={styles.dealDetailImg}
+                  onError={() => setImgError(true)}
+                />
+              ) : (
+                <span>{catStyle.emoji}</span>
+              )}
               <div className={styles.heatBadge} style={{ background: hc }}>
                 {score >= 0 ? (
                   <Flame size={12} strokeWidth={3} />
@@ -175,8 +199,55 @@ const downCount = deal.votes?.down || 0;
                   fill={isSaved ? "#db2777" : "none"}
                   strokeWidth={2}
                 />
-              </button>
+</button>
             </div>
+
+{/* Image thumbnail carousel */}
+            {galleryImages.length > 1 && (
+              <div className={styles.imgGalleryNav}>
+                {galleryImages.length > VISIBLE_THUMBS && (
+                  <button
+                    onClick={scrollThumbsLeft}
+                    disabled={!canScrollLeft}
+                    className={styles.imgScrollBtn}
+                    type="button"
+                    aria-label="Scroll thumbnails left"
+                  >
+                    <ChevronLeft size={16} strokeWidth={2.5} />
+                  </button>
+                )}
+
+                <div className={styles.imgThumbViewport} style={{ width: thumbViewportWidth }}>
+                  <div
+                    className={styles.imgThumbTrack}
+                    style={{ transform: `translateX(-${thumbStart * (THUMB_SIZE + THUMB_GAP)}px)` }}
+                  >
+                    {galleryImages.map((url, i) => (
+                      <button
+                        key={url + i}
+                        onClick={() => { setSelectedImg(i); setImgError(false); }}
+                        className={`${styles.imgThumbBtn} ${i === selectedImg ? styles.imgThumbBtnActive : ''}`}
+                        type="button"
+                      >
+                        <img src={url} alt={`View ${i + 1}`} className={styles.imgThumbBtnImg} />
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {galleryImages.length > VISIBLE_THUMBS && (
+                  <button
+                    onClick={scrollThumbsRight}
+                    disabled={!canScrollRight}
+                    className={styles.imgScrollBtn}
+                    type="button"
+                    aria-label="Scroll thumbnails right"
+                  >
+                    <ChevronRight size={16} strokeWidth={2.5} />
+                  </button>
+                )}
+              </div>
+            )}
 
             {/* Votes */}
             <div className={styles.voteCard}>
@@ -278,8 +349,8 @@ const downCount = deal.votes?.down || 0;
             </div>
 
             {/* Get Deal CTA */}
-            <a
-              href={dealCtaUrl}
+            
+              <a href={dealCtaUrl}
               target="_blank"
               rel="noopener noreferrer"
               className={styles.dealCta}

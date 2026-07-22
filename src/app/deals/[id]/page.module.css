@@ -63,6 +63,85 @@
   position: relative;
   margin-bottom: 12px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+}
+
+.dealDetailImg {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.imgGalleryNav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.imgScrollBtn {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 1.5px solid #e5e5e5;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  color: #444444;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.imgScrollBtn:hover:not(:disabled) {
+  border-color: #111111;
+  background: #f5f5f5;
+}
+
+.imgScrollBtn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.imgThumbViewport {
+  overflow: hidden;
+}
+
+.imgThumbTrack {
+  display: flex;
+  gap: 8px;
+  transition: transform 0.25s ease;
+}
+
+.imgThumbBtn {
+  width: 52px;
+  height: 52px;
+  border-radius: 9px;
+  overflow: hidden;
+  border: 2px solid #e5e5e5;
+  padding: 0;
+  cursor: pointer;
+  background: #f5f5f5;
+  flex-shrink: 0;
+  transition: border-color 0.15s;
+}
+
+.imgThumbBtn:hover {
+  border-color: #a8a29e;
+}
+
+.imgThumbBtnActive {
+  border-color: #111111;
+}
+
+.imgThumbBtnImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
 
 .heatBadge {

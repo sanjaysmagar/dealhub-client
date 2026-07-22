@@ -127,7 +127,16 @@
   text-decoration: none;
   color: #ffffff;
   display: block;
+  overflow: hidden;
   transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.heroFeaturedImg {
+  width: calc(100% + 36px);
+  height: 100px;
+  object-fit: cover;
+  display: block;
+  margin: -16px -18px 8px;
 }
 
 .heroFeatured:hover {
