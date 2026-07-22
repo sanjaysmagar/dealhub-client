@@ -3,10 +3,26 @@
 import { useState, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  Link2, Globe, ArrowRight, ArrowLeft, Zap, Upload,
-  AlignLeft, Calendar, CheckCircle, Check, MapPin, X,
-  Percent, AlertCircle, Loader2, Plus, ImageOff
-} from 'lucide-react';
+  Link2,
+  Globe,
+  ArrowRight,
+  ArrowLeft,
+  Zap,
+  Upload,
+  AlignLeft,
+  Calendar,
+  CheckCircle,
+  Check,
+  X,
+  Percent,
+  AlertCircle,
+  Loader2,
+  Plus,
+  ImageOff,
+  Tag,
+  Store,
+  ChevronDown,
+} from "lucide-react";
 import { createDeal } from "@/store/slices/dealsSlice";
 import { generateLink } from "@/store/slices/affiliateSlice";
 import { CAT_STYLES } from "@/lib/utils";
@@ -43,38 +59,73 @@ export default function SubmitClient() {
   const [submitted, setSubmitted] = useState(false);
   const [createdLink, setCreatedLink] = useState(null);
   const [focused, setFocused] = useState("");
+  const [linkError, setLinkError] = useState("");
 
-const [form, setForm] = useState({
-  externalLink: '', title: '', discountedPrice: '', originalPrice: '',
-  category: '', retailer: '', images: [],
-  availability: 'online', description: '', expiresAt: '', location: 'National',
-  wantAffiliate: false,
-});
+  const [form, setForm] = useState({
+    externalLink: "",
+    title: "",
+    discountedPrice: "",
+    originalPrice: "",
+    category: "",
+    retailer: "",
+    images: [],
+    availability: "online",
+    description: "",
+    expiresAt: "",
+    wantAffiliate: false,
+  });
 
   const upd = (k, v) => setForm((f) => ({ ...f, [k]: v }));
-const [imageUrlInput, setImageUrlInput] = useState('');
-const imageInputRef = useRef(null);
+  const [imageUrlInput, setImageUrlInput] = useState("");
+  const imageInputRef = useRef(null);
 
-const addImageUrl = () => {
-  const url = imageUrlInput.trim();
-  if (!url) return;
-  if (form.images.includes(url)) { setImageUrlInput(''); return; }
-  if (form.images.length >= 8) return; // cap at 8, same as HotUKDeals
+  const addImageUrl = () => {
+    const url = imageUrlInput.trim();
+    if (!url) return;
+    if (form.images.includes(url)) {
+      setImageUrlInput("");
+      return;
+    }
+    if (form.images.length >= 8) return; // cap at 8, same as HotUKDeals
 
-  setForm((f) => ({ ...f, images: [...f.images, url] }));
-  setImageUrlInput('');
-};
+    setForm((f) => ({ ...f, images: [...f.images, url] }));
+    setImageUrlInput("");
+  };
 
-const removeImage = (index) => {
-  setForm((f) => ({ ...f, images: f.images.filter((_, i) => i !== index) }));
-};
+  const removeImage = (index) => {
+    setForm((f) => ({ ...f, images: f.images.filter((_, i) => i !== index) }));
+  };
 
-const focusImageInput = () => {
-  imageInputRef.current?.focus();
-};
+  const focusImageInput = () => {
+    imageInputRef.current?.focus();
+  };
 
   const next = () => step < 5 && setStep((s) => s + 1);
   const back = () => step > 0 && setStep((s) => s - 1);
+
+  const isStepValid = (index) => {
+    if (index === 0) {
+      return !!form.externalLink.trim();
+    }
+    if (index === 1) {
+      return !!(
+        form.title.trim() &&
+        form.discountedPrice &&
+        form.category &&
+        form.retailer
+      );
+    }
+    return true; // Image Gallery, Description, Final Details are all optional
+  };
+
+  const handleGetStartedLink = () => {
+    if (!form.externalLink.trim()) {
+      setLinkError("Please add a link before continuing.");
+      return;
+    }
+    setLinkError("");
+    next();
+  };
 
   const discountPct =
     form.discountedPrice && form.originalPrice && +form.originalPrice > 0
@@ -97,18 +148,18 @@ const focusImageInput = () => {
     setSubmitting(true);
     setSubmitError("");
 
-const dealPayload = {
-  title: form.title,
-  description: form.description,
-  originalPrice: +form.originalPrice,
-  discountedPrice: +form.discountedPrice,
-  category: form.category,
-  retailer: form.retailer || 'other',
-  imageUrl: form.images[0] || '',
-  images: form.images,
-  externalLink: form.externalLink || 'https://example.com',
-  expiresAt: form.expiresAt || null,
-};
+    const dealPayload = {
+      title: form.title,
+      description: form.description,
+      originalPrice: +form.originalPrice,
+      discountedPrice: +form.discountedPrice,
+      category: form.category,
+      retailer: form.retailer || "other",
+      imageUrl: form.images[0] || "",
+      images: form.images,
+      externalLink: form.externalLink || "https://example.com",
+      expiresAt: form.expiresAt || null,
+    };
 
     const result = await dispatch(createDeal(dealPayload));
 
@@ -164,6 +215,8 @@ const dealPayload = {
         {STEPS.map((s, i) => {
           const done = i < step;
           const current = i === step;
+          const valid = isStepValid(i);
+          const incomplete = done && !valid;
           return (
             <div
               key={i}
@@ -171,10 +224,12 @@ const dealPayload = {
               className={`${styles.stepItem} ${done ? styles.stepItemClickable : ""} ${current ? styles.stepItemActive : ""}`}
             >
               <div
-                className={`${styles.stepDot} ${done ? styles.stepDotDone : ""} ${current ? styles.stepDotActive : ""}`}
+                className={`${styles.stepDot} ${done && valid ? styles.stepDotDone : ""} ${incomplete ? styles.stepDotIncomplete : ""} ${current ? styles.stepDotActive : ""}`}
               >
-                {done ? (
+                {done && valid ? (
                   <Check size={12} color="#22c55e" strokeWidth={3} />
+                ) : incomplete ? (
+                  <AlertCircle size={12} color="#dc2626" strokeWidth={2.5} />
                 ) : (
                   <s.Icon
                     size={12}
@@ -184,7 +239,7 @@ const dealPayload = {
                 )}
               </div>
               <span
-                className={`${styles.stepLabel} ${current ? styles.stepLabelActive : ""} ${done ? styles.stepLabelDone : ""}`}
+                className={`${styles.stepLabel} ${current ? styles.stepLabelActive : ""} ${done && valid ? styles.stepLabelDone : ""} ${incomplete ? styles.stepLabelIncomplete : ""}`}
               >
                 {s.label}
               </span>
@@ -224,18 +279,38 @@ const dealPayload = {
                   <Globe size={14} color="#a8a29e" strokeWidth={2} />
                   <input
                     value={form.externalLink}
-                    onChange={(e) => upd("externalLink", e.target.value)}
+                    onChange={(e) => {
+                      upd("externalLink", e.target.value);
+                      if (linkError) setLinkError("");
+                    }}
                     onFocus={() => setFocused("url")}
                     onBlur={() => setFocused("")}
                     placeholder="https://www.site.com/greatdeal..."
                     className={styles.linkInput}
                   />
                 </div>
-                <button onClick={next} className={styles.getStartedBtn}>
+                <button
+                  onClick={handleGetStartedLink}
+                  className={styles.getStartedBtn}
+                >
                   Get started
                 </button>
               </div>
-              <button onClick={next} className={styles.skipLinkBtn}>
+
+              {linkError && (
+                <div
+                  className={styles.submitError}
+                  style={{ marginTop: 12, justifyContent: "center" }}
+                >
+                  <AlertCircle size={14} strokeWidth={2.5} />
+                  {linkError}
+                </div>
+              )}
+
+              <button
+                className={styles.skipLinkBtn}
+                style={{ marginTop: linkError ? 14 : 0 }}
+              >
                 I don&apos;t have a link
               </button>
             </div>
@@ -317,35 +392,61 @@ const dealPayload = {
                       Category <span className={styles.required}>*</span>
                     </span>
                   </label>
-                  <select
-                    value={form.category}
-                    onChange={(e) => upd("category", e.target.value)}
-                    className={styles.selectInput}
-                  >
-                    <option value="">Select category</option>
-                    {CATEGORIES.map((c) => (
-                      <option key={c} value={c}>
-                        {c}
-                      </option>
-                    ))}
-                  </select>
+                  <div className={styles.selectWrap}>
+                    <Tag
+                      size={15}
+                      className={styles.selectIcon}
+                      strokeWidth={2}
+                    />
+                    <select
+                      value={form.category}
+                      onChange={(e) => upd("category", e.target.value)}
+                      className={styles.selectInput}
+                    >
+                      <option value="">Select category</option>
+                      {CATEGORIES.map((c) => (
+                        <option key={c} value={c}>
+                          {c}
+                        </option>
+                      ))}
+                    </select>
+                    <ChevronDown
+                      size={15}
+                      className={styles.selectChevron}
+                      strokeWidth={2}
+                    />
+                  </div>
                 </div>
                 <div>
                   <label className={styles.formLabel}>
-                    <span>Retailer</span>
+                    <span>
+                      Retailer <span className={styles.required}>*</span>
+                    </span>
                   </label>
-                  <select
-                    value={form.retailer}
-                    onChange={(e) => upd("retailer", e.target.value)}
-                    className={styles.selectInput}
-                  >
-                    <option value="">Select retailer</option>
-                    {RETAILERS.map((r) => (
-                      <option key={r} value={r}>
-                        {r}
-                      </option>
-                    ))}
-                  </select>
+                  <div className={styles.selectWrap}>
+                    <Store
+                      size={15}
+                      className={styles.selectIcon}
+                      strokeWidth={2}
+                    />
+                    <select
+                      value={form.retailer}
+                      onChange={(e) => upd("retailer", e.target.value)}
+                      className={styles.selectInput}
+                    >
+                      <option value="">Select retailer</option>
+                      {RETAILERS.map((r) => (
+                        <option key={r} value={r}>
+                          {r}
+                        </option>
+                      ))}
+                    </select>
+                    <ChevronDown
+                      size={15}
+                      className={styles.selectChevron}
+                      strokeWidth={2}
+                    />
+                  </div>
                 </div>
               </div>
 
@@ -365,12 +466,15 @@ const dealPayload = {
           )}
 
           {/* STEP 2 — Image */}
-{/* STEP 2 — Image */}
+          {/* STEP 2 — Image */}
           {step === 2 && (
             <div className={styles.step}>
-              <h2 className={styles.stepHeading}>Make your deal stand out with images</h2>
+              <h2 className={styles.stepHeading}>
+                Make your deal stand out with images
+              </h2>
               <p className={styles.stepSub}>
-                Add up to 8 images. The first one is used as your deal&apos;s cover photo everywhere on the site.
+                Add up to 8 images. The first one is used as your deal&apos;s
+                cover photo everywhere on the site.
               </p>
 
               <div className={styles.galleryGrid}>
@@ -380,7 +484,9 @@ const dealPayload = {
                       src={url}
                       alt={`Image ${i + 1}`}
                       className={styles.galleryThumbImg}
-                      onError={(e) => { e.target.style.opacity = 0.15; }}
+                      onError={(e) => {
+                        e.target.style.opacity = 0.15;
+                      }}
                     />
                     <button
                       className={styles.galleryRemoveBtn}
@@ -389,25 +495,38 @@ const dealPayload = {
                     >
                       <X size={13} strokeWidth={2.5} />
                     </button>
-                    {i === 0 && <div className={styles.galleryCoverLabel}>Cover</div>}
+                    {i === 0 && (
+                      <div className={styles.galleryCoverLabel}>Cover</div>
+                    )}
                   </div>
                 ))}
 
                 {form.images.length < 8 && (
-                  <button className={styles.galleryAddTile} onClick={focusImageInput} type="button">
+                  <button
+                    className={styles.galleryAddTile}
+                    onClick={focusImageInput}
+                    type="button"
+                  >
                     <Plus size={22} color="#a8a29e" strokeWidth={2} />
                     <span>Add Image</span>
                   </button>
                 )}
               </div>
 
-              <label className={styles.formLabel}><span>Add image via URL</span></label>
+              <label className={styles.formLabel}>
+                <span>Add image via URL</span>
+              </label>
               <div className={styles.galleryUrlRow}>
                 <input
                   ref={imageInputRef}
                   value={imageUrlInput}
                   onChange={(e) => setImageUrlInput(e.target.value)}
-                  onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addImageUrl(); } }}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      addImageUrl();
+                    }
+                  }}
                   placeholder="https://example.com/image.jpg"
                   className={styles.textInput}
                   disabled={form.images.length >= 8}
@@ -425,11 +544,14 @@ const dealPayload = {
               {form.images.length === 0 && (
                 <div className={styles.galleryEmptyNote}>
                   <ImageOff size={13} strokeWidth={2} />
-                  No images added yet — this deal will show a category icon instead.
+                  No images added yet — this deal will show a category icon
+                  instead.
                 </div>
               )}
               {form.images.length >= 8 && (
-                <div className={styles.galleryEmptyNote}>Maximum of 8 images reached.</div>
+                <div className={styles.galleryEmptyNote}>
+                  Maximum of 8 images reached.
+                </div>
               )}
             </div>
           )}
@@ -482,25 +604,6 @@ const dealPayload = {
                 </div>
               </div>
 
-              <div className={styles.formGroup}>
-                <label className={styles.formLabel}>
-                  <span>
-                    Select location(s){" "}
-                    <span className={styles.required}>*</span>
-                  </span>
-                </label>
-                <div className={styles.locationBox}>
-                  <MapPin size={14} color="#a8a29e" strokeWidth={2} />
-                  <span className={styles.locationText}>{form.location}</span>
-                  <X
-                    size={14}
-                    color="#a8a29e"
-                    strokeWidth={2}
-                    style={{ cursor: "pointer" }}
-                  />
-                </div>
-              </div>
-
               <div className={styles.affiliateCard}>
                 <div className={styles.affiliateHeader}>
                   <div className={styles.affiliateTitle}>
@@ -533,15 +636,25 @@ const dealPayload = {
                 Check everything looks right before it goes live.
               </p>
 
-<div className={styles.previewCard}>
+              <div className={styles.previewCard}>
                 <div
                   className={styles.previewImg}
-                  style={{ background: form.category ? CAT_STYLES[form.category]?.gradient : '#f5f5f5' }}
+                  style={{
+                    background: form.category
+                      ? CAT_STYLES[form.category]?.gradient
+                      : "#f5f5f5",
+                  }}
                 >
                   {form.images[0] ? (
-                    <img src={form.images[0]} alt="Deal preview" className={styles.previewImgPhoto} />
+                    <img
+                      src={form.images[0]}
+                      alt="Deal preview"
+                      className={styles.previewImgPhoto}
+                    />
+                  ) : form.category ? (
+                    CAT_STYLES[form.category]?.emoji
                   ) : (
-                    form.category ? CAT_STYLES[form.category]?.emoji : '🏷️'
+                    "🏷️"
                   )}
                 </div>
                 <div className={styles.previewBody}>
@@ -552,24 +665,32 @@ const dealPayload = {
                     {form.retailer && (
                       <span className={styles.previewTag}>{form.retailer}</span>
                     )}
-                    {form.availability === 'in-store' && (
+                    {form.availability === "in-store" && (
                       <span className={styles.previewTag}>In-store</span>
                     )}
                   </div>
                   <div className={styles.previewTitle}>
                     {form.title || (
-                      <span className={styles.previewTitlePlaceholder}>No title entered</span>
+                      <span className={styles.previewTitlePlaceholder}>
+                        No title entered
+                      </span>
                     )}
                   </div>
                   <div className={styles.previewPriceRow}>
                     {form.discountedPrice && (
-                      <span className={styles.previewPrice}>£{(+form.discountedPrice).toFixed(2)}</span>
+                      <span className={styles.previewPrice}>
+                        £{(+form.discountedPrice).toFixed(2)}
+                      </span>
                     )}
                     {form.originalPrice && (
-                      <span className={styles.previewOldPrice}>£{(+form.originalPrice).toFixed(2)}</span>
+                      <span className={styles.previewOldPrice}>
+                        £{(+form.originalPrice).toFixed(2)}
+                      </span>
                     )}
                     {discountPct > 0 && (
-                      <span className={styles.previewDiscount}>-{discountPct}%</span>
+                      <span className={styles.previewDiscount}>
+                        -{discountPct}%
+                      </span>
                     )}
                   </div>
                   {form.description && (
@@ -607,7 +728,9 @@ const dealPayload = {
 
               <button
                 onClick={handleSubmitDeal}
-                disabled={submitting || !form.title || !form.category}
+                disabled={
+                  submitting || !form.title || !form.category || !form.retailer
+                }
                 className={styles.submitDealBtn}
               >
                 {submitting ? (

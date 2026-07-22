@@ -298,9 +298,32 @@
   font-weight: 800;
 }
 
+.selectWrap {
+  position: relative;
+}
+
+.selectIcon {
+  position: absolute;
+  left: 13px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #a8a29e;
+  pointer-events: none;
+}
+
+.selectChevron {
+  position: absolute;
+  right: 13px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #a8a29e;
+  pointer-events: none;
+  transition: transform 0.15s;
+}
+
 .selectInput {
   width: 100%;
-  padding: 10px 14px;
+  padding: 11px 38px 11px 38px;
   border-radius: 9px;
   border: 1.5px solid #e5e5e5;
   font-size: 13px;
@@ -309,6 +332,28 @@
   color: #1c1917;
   background: #ffffff;
   cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.selectInput:hover {
+  border-color: #bbbbbb;
+}
+
+.selectInput:focus {
+  border-color: #111111;
+  box-shadow: 0 0 0 3px rgba(17, 17, 17, 0.08);
+}
+
+.selectWrap:focus-within .selectChevron {
+  transform: translateY(-50%) rotate(180deg);
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
 }
 
 .toggleRow {
@@ -911,4 +956,13 @@
   .twoCol {
     grid-template-columns: 1fr;
   }
+}
+
+.stepDotIncomplete {
+  background: #fef2f2;
+  border: 1.5px solid #dc2626;
+}
+
+.stepLabelIncomplete {
+  color: #dc2626;
 }
