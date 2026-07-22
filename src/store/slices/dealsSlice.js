@@ -6,7 +6,8 @@ export const fetchDeals = createAsyncThunk(
   "deals/fetchAll",
   async (params = {}, { rejectWithValue }) => {
     try {
-      const { data } = await api.get("/deals", { params });
+      const { append, ...apiParams } = params;
+      const { data } = await api.get("/deals", { params: apiParams });
       return data;
     } catch (err) {
       return rejectWithValue(
@@ -155,11 +156,43 @@ export const fetchStats = createAsyncThunk(
   },
 );
 
+// Toggle save/favourite on a deal
+export const toggleSaveDeal = createAsyncThunk(
+  "deals/toggleSave",
+  async (dealId, { rejectWithValue }) => {
+    try {
+      const { data } = await api.post(`/saved/${dealId}/toggle`);
+      return { dealId, saved: data.saved };
+    } catch (err) {
+      return rejectWithValue(
+        err.response?.data?.message || "Failed to save deal",
+      );
+    }
+  },
+);
+
+// Fetch this user's saved deals (for the Saved Deals dashboard tab)
+export const fetchMySavedDeals = createAsyncThunk(
+  "deals/fetchMySaved",
+  async (_, { rejectWithValue }) => {
+    try {
+      const { data } = await api.get("/saved/my-saved");
+      return data;
+    } catch (err) {
+      return rejectWithValue(
+        err.response?.data?.message || "Failed to fetch saved deals",
+      );
+    }
+  },
+);
+
 const dealsSlice = createSlice({
   name: "deals",
   initialState: {
     deals: [],
+    loadingMore: false,
     myDeals: [],
+    savedDeals: [],
     adminDeals: [],
     adminCounts: { total: 0, approved: 0, rejected: 0 },
     adminPagination: {},
@@ -183,17 +216,27 @@ const dealsSlice = createSlice({
   },
   extraReducers: (builder) => {
     // Fetch all
-    builder.addCase(fetchDeals.pending, (state) => {
-      state.loading = true;
+    builder.addCase(fetchDeals.pending, (state, action) => {
+      if (action.meta.arg?.append) {
+        state.loadingMore = true;
+      } else {
+        state.loading = true;
+      }
       state.error = null;
     });
     builder.addCase(fetchDeals.fulfilled, (state, action) => {
       state.loading = false;
-      state.deals = action.payload.deals;
+      state.loadingMore = false;
+      if (action.meta.arg?.append) {
+        state.deals = [...state.deals, ...action.payload.deals];
+      } else {
+        state.deals = action.payload.deals;
+      }
       state.pagination = action.payload.pagination;
     });
     builder.addCase(fetchDeals.rejected, (state, action) => {
       state.loading = false;
+      state.loadingMore = false;
       state.error = action.payload;
     });
 
@@ -221,18 +264,23 @@ const dealsSlice = createSlice({
       state.adminDeals = state.adminDeals.filter(
         (d) => d._id !== action.payload,
       );
+      state.savedDeals = state.savedDeals.filter(
+        (d) => d._id !== action.payload,
+      );
     });
 
-    // Vote — update the deal in the list
+    // Vote — update the deal in the list, including the user's own vote
     builder.addCase(voteDeal.fulfilled, (state, action) => {
       const idx = state.deals.findIndex((d) => d._id === action.payload.id);
       if (idx !== -1) {
         state.deals[idx].votes = action.payload.votes;
         state.deals[idx].score = action.payload.score;
+        state.deals[idx].myVote = action.payload.myVote;
       }
       if (state.currentDeal?._id === action.payload.id) {
         state.currentDeal.votes = action.payload.votes;
         state.currentDeal.score = action.payload.score;
+        state.currentDeal.myVote = action.payload.myVote;
       }
     });
 
@@ -253,6 +301,26 @@ const dealsSlice = createSlice({
     });
     builder.addCase(fetchStats.fulfilled, (state, action) => {
       state.stats = action.payload;
+    });
+
+    // Save / Favourite toggle
+    builder.addCase(toggleSaveDeal.fulfilled, (state, action) => {
+      const { dealId, saved } = action.payload;
+
+      const idx = state.deals.findIndex((d) => d._id === dealId);
+      if (idx !== -1) state.deals[idx].isSaved = saved;
+
+      if (state.currentDeal?._id === dealId) {
+        state.currentDeal.isSaved = saved;
+      }
+
+      if (!saved) {
+        state.savedDeals = state.savedDeals.filter((d) => d._id !== dealId);
+      }
+    });
+
+    builder.addCase(fetchMySavedDeals.fulfilled, (state, action) => {
+      state.savedDeals = action.payload;
     });
   },
 });

@@ -6,20 +6,21 @@ import { useDispatch, useSelector } from 'react-redux';
 import {
   User, Star, Package, Link2, Edit2, Trash2, X, Check,
   LogIn, Plus, MousePointer, Zap, Copy, ShoppingBag,
-  AlertTriangle, Loader2
+  AlertTriangle, Loader2, Heart
 } from 'lucide-react';
-import { fetchMyDeals, updateDeal, deleteDeal } from '@/store/slices/dealsSlice';
+import { fetchMyDeals, updateDeal, deleteDeal, fetchMySavedDeals } from '@/store/slices/dealsSlice';
 import { fetchMyLinks } from '@/store/slices/affiliateSlice';
 import { updateProfile, clearError } from '@/store/slices/authSlice';
 import { CAT_STYLES, formatPrice, timeAgo } from '@/lib/utils';
+import DealCard from '@/components/deals/DealCard';
 import styles from './page.module.css';
 
 const CATEGORIES = ['Beauty', 'Fashion', 'Tech', 'Home', 'Food', 'Sports', 'Gaming', 'Other'];
 
 export default function DashboardClient() {
   const dispatch = useDispatch();
-const { user, error: profileError } = useSelector((s) => s.auth);
-  const { myDeals } = useSelector((s) => s.deals);
+  const { user, error: profileError } = useSelector((s) => s.auth);
+  const { myDeals, savedDeals } = useSelector((s) => s.deals);
   const { myLinks } = useSelector((s) => s.affiliate);
 
   const [tab, setTab] = useState('profile');
@@ -29,6 +30,7 @@ const { user, error: profileError } = useSelector((s) => s.auth);
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [loadingDeals, setLoadingDeals] = useState(false);
   const [loadingLinks, setLoadingLinks] = useState(false);
+  const [loadingSaved, setLoadingSaved] = useState(false);
   const [copiedId, setCopiedId] = useState(null);
 
   useEffect(() => {
@@ -45,6 +47,10 @@ const { user, error: profileError } = useSelector((s) => s.auth);
     if (tab === 'links') {
       setLoadingLinks(true);
       dispatch(fetchMyLinks()).finally(() => setLoadingLinks(false));
+    }
+    if (tab === 'saved') {
+      setLoadingSaved(true);
+      dispatch(fetchMySavedDeals()).finally(() => setLoadingSaved(false));
     }
   }, [dispatch, tab, user]);
 
@@ -78,19 +84,18 @@ const { user, error: profileError } = useSelector((s) => s.auth);
     }));
   };
 
-const saveProfile = async () => {
-  const result = await dispatch(updateProfile(profileForm));
-  if (updateProfile.fulfilled.match(result)) {
-    setEditingProfile(false);
-  }
-  // if rejected, stay open so the error is visible and the person can fix it
-};
+  const saveProfile = async () => {
+    const result = await dispatch(updateProfile(profileForm));
+    if (updateProfile.fulfilled.match(result)) {
+      setEditingProfile(false);
+    }
+  };
 
-const cancelEditProfile = () => {
-  setProfileForm({ username: user.username, preferences: user.preferences || [] });
-  dispatch(clearError());
-  setEditingProfile(false);
-};
+  const cancelEditProfile = () => {
+    setProfileForm({ username: user.username, preferences: user.preferences || [] });
+    dispatch(clearError());
+    setEditingProfile(false);
+  };
 
   const handleCopyLink = (link) => {
     navigator.clipboard.writeText(link.shareUrl || `${window.location.origin}/api/affiliate/go/${link.trackingCode}`);
@@ -125,8 +130,9 @@ const cancelEditProfile = () => {
       {/* ── Tabs ── */}
       <div className={styles.tabs}>
         {[
-          { key: 'profile', label: 'Profile',              Icon: User    },
+          { key: 'profile', label: 'Profile',                     Icon: User    },
           { key: 'deals',   label: `My Deals (${myDeals.length})`, Icon: Package },
+          { key: 'saved',   label: `Saved (${savedDeals.length})`, Icon: Heart   },
           { key: 'links',   label: `My Links (${myLinks.length})`, Icon: Link2   },
         ].map((t) => (
           <button
@@ -145,42 +151,41 @@ const cancelEditProfile = () => {
         <div className={styles.profileCard}>
           <div className={styles.profileHeader}>
             <span className={styles.profileTitle}>Profile Settings</span>
-{!editingProfile && (
-  <button
-    className={styles.editBtn}
-    onClick={() => { dispatch(clearError()); setEditingProfile(true); }}
-  >
-    <Edit2 size={13} strokeWidth={2.5} />
-    Edit
-  </button>
-)}
+            {!editingProfile && (
+              <button
+                className={styles.editBtn}
+                onClick={() => { dispatch(clearError()); setEditingProfile(true); }}
+              >
+                <Edit2 size={13} strokeWidth={2.5} />
+                Edit
+              </button>
+            )}
           </div>
 
           {/* Username */}
-{/* Username */}
-<div className={styles.field}>
-  <label className={styles.fieldLabel}>Username</label>
-  {editingProfile ? (
-    <>
-      <input
-        value={profileForm.username}
-        onChange={(e) => {
-          setProfileForm({ ...profileForm, username: e.target.value });
-          if (profileError) dispatch(clearError());
-        }}
-        className={`${styles.textInput} ${profileError ? styles.textInputError : ''}`}
-      />
-      {profileError && (
-        <div className={styles.fieldError}>
-          <AlertTriangle size={12} strokeWidth={2.5} />
-          {profileError}
-        </div>
-      )}
-    </>
-  ) : (
-    <div className={styles.fieldValue}>@{user.username}</div>
-  )}
-</div>
+          <div className={styles.field}>
+            <label className={styles.fieldLabel}>Username</label>
+            {editingProfile ? (
+              <>
+                <input
+                  value={profileForm.username}
+                  onChange={(e) => {
+                    setProfileForm({ ...profileForm, username: e.target.value });
+                    if (profileError) dispatch(clearError());
+                  }}
+                  className={`${styles.textInput} ${profileError ? styles.textInputError : ''}`}
+                />
+                {profileError && (
+                  <div className={styles.fieldError}>
+                    <AlertTriangle size={12} strokeWidth={2.5} />
+                    {profileError}
+                  </div>
+                )}
+              </>
+            ) : (
+              <div className={styles.fieldValue}>@{user.username}</div>
+            )}
+          </div>
 
           {/* Email — read only */}
           <div className={styles.field}>
@@ -298,6 +303,39 @@ const cancelEditProfile = () => {
               </div>
             );
           })}
+        </div>
+      )}
+
+      {/* ══════════ SAVED DEALS TAB ══════════ */}
+      {tab === 'saved' && (
+        <div>
+          <div className={styles.dealsHeader}>
+            <span className={styles.dealsTitle}>Your Saved Deals</span>
+          </div>
+
+          {loadingSaved && (
+            <>{[1, 2, 3].map((i) => <div key={i} className={styles.skeletonRow} />)}</>
+          )}
+
+          {!loadingSaved && savedDeals.length === 0 && (
+            <div className={styles.emptyState}>
+              <Heart size={36} strokeWidth={1.5} className={styles.emptyIcon} />
+              <div className={styles.emptyTitle}>No saved deals yet</div>
+              <div className={styles.emptyDesc}>Tap the heart icon on any deal to save it here.</div>
+              <Link href="/" className={styles.emptyBtn}>
+                <ShoppingBag size={14} strokeWidth={2.5} />
+                Browse Deals
+              </Link>
+            </div>
+          )}
+
+          {!loadingSaved && savedDeals.length > 0 && (
+            <div className={styles.savedGrid}>
+              {savedDeals.map((deal, i) => (
+                <DealCard key={deal._id} deal={deal} index={i} />
+              ))}
+            </div>
+          )}
         </div>
       )}
 

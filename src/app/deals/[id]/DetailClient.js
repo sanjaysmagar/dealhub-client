@@ -27,7 +27,11 @@ import {
   Lock,
   TrendingUp,
 } from "lucide-react";
-import { fetchDealById, voteDeal } from "@/store/slices/dealsSlice";
+import {
+  fetchDealById,
+  voteDeal,
+  toggleSaveDeal,
+} from "@/store/slices/dealsSlice";
 import { generateLink } from "@/store/slices/affiliateSlice";
 import { formatPrice, timeAgo, CAT_STYLES } from "@/lib/utils";
 import styles from "./page.module.css";
@@ -45,16 +49,14 @@ export default function DetailClient({ dealId }) {
   const { user } = useSelector((s) => s.auth);
   const { linksByDeal, loading: linkLoading } = useSelector((s) => s.affiliate);
 
-  const [userVote, setUserVote] = useState(null);
-  const [isSaved, setIsSaved] = useState(false);
   const [copied, setCopied] = useState(false);
-const [imgError, setImgError] = useState(false);
-const [selectedImg, setSelectedImg] = useState(0);
-const [thumbStart, setThumbStart] = useState(0);
+  const [imgError, setImgError] = useState(false);
+  const [selectedImg, setSelectedImg] = useState(0);
+  const [thumbStart, setThumbStart] = useState(0);
 
-const THUMB_SIZE = 52;
-const THUMB_GAP = 8;
-const VISIBLE_THUMBS = 4;
+  const THUMB_SIZE = 52;
+  const THUMB_GAP = 8;
+  const VISIBLE_THUMBS = 4;
 
   useEffect(() => {
     dispatch(fetchDealById(dealId));
@@ -94,27 +96,30 @@ const VISIBLE_THUMBS = 4;
     );
   }
 
-const catStyle = CAT_STYLES[deal.category] || CAT_STYLES.Other;
+  const catStyle = CAT_STYLES[deal.category] || CAT_STYLES.Other;
 
-// Works for both new deals (full images array) and older deals
-// (only a single imageUrl was ever saved) — falls back gracefully either way.
-const galleryImages = deal.images?.length > 0
-  ? deal.images
-  : (deal.imageUrl ? [deal.imageUrl] : []);
+  const galleryImages =
+    deal.images?.length > 0
+      ? deal.images
+      : deal.imageUrl
+        ? [deal.imageUrl]
+        : [];
 
-const activeImage = galleryImages[selectedImg] || galleryImages[0];
+  const activeImage = galleryImages[selectedImg] || galleryImages[0];
 
-const maxThumbStart = Math.max(0, galleryImages.length - VISIBLE_THUMBS);
-const canScrollLeft = thumbStart > 0;
-const canScrollRight = thumbStart < maxThumbStart;
+  const maxThumbStart = Math.max(0, galleryImages.length - VISIBLE_THUMBS);
+  const canScrollLeft = thumbStart > 0;
+  const canScrollRight = thumbStart < maxThumbStart;
 
-const scrollThumbsLeft = () => setThumbStart((s) => Math.max(0, s - 1));
-const scrollThumbsRight = () => setThumbStart((s) => Math.min(maxThumbStart, s + 1));
+  const scrollThumbsLeft = () => setThumbStart((s) => Math.max(0, s - 1));
+  const scrollThumbsRight = () =>
+    setThumbStart((s) => Math.min(maxThumbStart, s + 1));
 
-const visibleThumbCount = Math.min(galleryImages.length, VISIBLE_THUMBS);
-const thumbViewportWidth = visibleThumbCount * THUMB_SIZE + (visibleThumbCount - 1) * THUMB_GAP;
+  const visibleThumbCount = Math.min(galleryImages.length, VISIBLE_THUMBS);
+  const thumbViewportWidth =
+    visibleThumbCount * THUMB_SIZE + (visibleThumbCount - 1) * THUMB_GAP;
 
-  const score = deal.score ?? ((deal.votes?.up || 0) - (deal.votes?.down || 0));
+  const score = deal.score ?? (deal.votes?.up || 0) - (deal.votes?.down || 0);
   const hc = heatColor(score);
 
   const upCount = deal.votes?.up || 0;
@@ -125,8 +130,15 @@ const thumbViewportWidth = visibleThumbCount * THUMB_SIZE + (visibleThumbCount -
       window.location.href = "/login";
       return;
     }
-    setUserVote(userVote === type ? null : type);
     dispatch(voteDeal({ id: deal._id, voteType: type }));
+  };
+
+  const handleToggleSave = () => {
+    if (!user) {
+      window.location.href = "/login";
+      return;
+    }
+    dispatch(toggleSaveDeal(deal._id));
   };
 
   const link = linksByDeal[deal._id];
@@ -142,9 +154,6 @@ const thumbViewportWidth = visibleThumbCount * THUMB_SIZE + (visibleThumbCount -
     setTimeout(() => setCopied(false), 2200);
   };
 
-  // Route through our tracked redirect if this deal has a poster's link,
-  // so clicks are logged and points/commission are credited automatically.
-  // Falls back to the plain external link for older deals with no tracking set up.
   const apiBase =
     process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
   const dealCtaUrl = deal.affiliate?.trackingCode
@@ -169,7 +178,10 @@ const thumbViewportWidth = visibleThumbCount * THUMB_SIZE + (visibleThumbCount -
           {/* ══════════ LEFT COLUMN ══════════ */}
           <div>
             {/* Image */}
-<div className={styles.imageBox} style={{ background: catStyle.gradient }}>
+            <div
+              className={styles.imageBox}
+              style={{ background: catStyle.gradient }}
+            >
               {activeImage && !imgError ? (
                 <img
                   src={activeImage}
@@ -179,6 +191,9 @@ const thumbViewportWidth = visibleThumbCount * THUMB_SIZE + (visibleThumbCount -
                 />
               ) : (
                 <span>{catStyle.emoji}</span>
+              )}
+              {activeImage && !imgError && (
+                <div className={styles.imageScrim} />
               )}
               <div className={styles.heatBadge} style={{ background: hc }}>
                 {score >= 0 ? (
@@ -190,19 +205,19 @@ const thumbViewportWidth = visibleThumbCount * THUMB_SIZE + (visibleThumbCount -
               </div>
 
               <button
-                className={`${styles.saveBtn} ${isSaved ? styles.saveBtnActive : ""}`}
-                onClick={() => setIsSaved(!isSaved)}
+                className={`${styles.saveBtn} ${deal.isSaved ? styles.saveBtnActive : ""}`}
+                onClick={handleToggleSave}
               >
                 <Heart
                   size={16}
-                  color={isSaved ? "#db2777" : "#a8a29e"}
-                  fill={isSaved ? "#db2777" : "none"}
+                  color={deal.isSaved ? "#db2777" : "#ffffff"}
+                  fill={deal.isSaved ? "#db2777" : "none"}
                   strokeWidth={2}
                 />
-</button>
+              </button>
             </div>
 
-{/* Image thumbnail carousel */}
+            {/* Image thumbnail carousel */}
             {galleryImages.length > 1 && (
               <div className={styles.imgGalleryNav}>
                 {galleryImages.length > VISIBLE_THUMBS && (
@@ -217,19 +232,31 @@ const thumbViewportWidth = visibleThumbCount * THUMB_SIZE + (visibleThumbCount -
                   </button>
                 )}
 
-                <div className={styles.imgThumbViewport} style={{ width: thumbViewportWidth }}>
+                <div
+                  className={styles.imgThumbViewport}
+                  style={{ width: thumbViewportWidth }}
+                >
                   <div
                     className={styles.imgThumbTrack}
-                    style={{ transform: `translateX(-${thumbStart * (THUMB_SIZE + THUMB_GAP)}px)` }}
+                    style={{
+                      transform: `translateX(-${thumbStart * (THUMB_SIZE + THUMB_GAP)}px)`,
+                    }}
                   >
                     {galleryImages.map((url, i) => (
                       <button
                         key={url + i}
-                        onClick={() => { setSelectedImg(i); setImgError(false); }}
-                        className={`${styles.imgThumbBtn} ${i === selectedImg ? styles.imgThumbBtnActive : ''}`}
+                        onClick={() => {
+                          setSelectedImg(i);
+                          setImgError(false);
+                        }}
+                        className={`${styles.imgThumbBtn} ${i === selectedImg ? styles.imgThumbBtnActive : ""}`}
                         type="button"
                       >
-                        <img src={url} alt={`View ${i + 1}`} className={styles.imgThumbBtnImg} />
+                        <img
+                          src={url}
+                          alt={`View ${i + 1}`}
+                          className={styles.imgThumbBtnImg}
+                        />
                       </button>
                     ))}
                   </div>
@@ -257,7 +284,7 @@ const thumbViewportWidth = visibleThumbCount * THUMB_SIZE + (visibleThumbCount -
               </div>
               <div className={styles.voteRow}>
                 <button
-                  className={`${styles.voteBtn} ${userVote === "up" ? styles.voteBtnHot : ""}`}
+                  className={`${styles.voteBtn} ${deal.myVote === "up" ? styles.voteBtnHot : ""}`}
                   onClick={() => handleVote("up")}
                 >
                   <Flame size={15} strokeWidth={2.5} />
@@ -272,7 +299,7 @@ const thumbViewportWidth = visibleThumbCount * THUMB_SIZE + (visibleThumbCount -
                 </div>
 
                 <button
-                  className={`${styles.voteBtn} ${userVote === "down" ? styles.voteBtnCold : ""}`}
+                  className={`${styles.voteBtn} ${deal.myVote === "down" ? styles.voteBtnCold : ""}`}
                   onClick={() => handleVote("down")}
                 >
                   <Snowflake size={15} strokeWidth={2.5} />
@@ -287,12 +314,14 @@ const thumbViewportWidth = visibleThumbCount * THUMB_SIZE + (visibleThumbCount -
                 <Share2 size={14} strokeWidth={2} />
                 Share
               </button>
-              <button
-                className={styles.shareBtn}
-                onClick={() => setIsSaved(!isSaved)}
-              >
-                <Bookmark size={14} strokeWidth={2} />
-                Save
+              <button className={styles.shareBtn} onClick={handleToggleSave}>
+                <Bookmark
+                  size={14}
+                  strokeWidth={2}
+                  color={deal.isSaved ? "#db2777" : "currentColor"}
+                  fill={deal.isSaved ? "#db2777" : "none"}
+                />
+                {deal.isSaved ? "Saved" : "Save"}
               </button>
             </div>
           </div>
@@ -349,8 +378,9 @@ const thumbViewportWidth = visibleThumbCount * THUMB_SIZE + (visibleThumbCount -
             </div>
 
             {/* Get Deal CTA */}
-            
-              <a href={dealCtaUrl}
+
+            <a
+              href={dealCtaUrl}
               target="_blank"
               rel="noopener noreferrer"
               className={styles.dealCta}

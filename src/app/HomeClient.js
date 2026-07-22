@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -10,6 +10,7 @@ import {
   Plus,
   Zap,
   Construction,
+  ArrowRight,
 } from "lucide-react";
 import {
   fetchDeals,
@@ -53,20 +54,53 @@ function SkeletonCard() {
 
 export default function HomeClient() {
   const dispatch = useDispatch();
-  const { deals, featuredDeal, stats, loading, error, filters, pagination } =
-    useSelector((s) => s.deals);
+  const {
+    deals,
+    featuredDeal,
+    stats,
+    loading,
+    loadingMore,
+    error,
+    filters,
+    pagination,
+  } = useSelector((s) => s.deals);
+
+  const [homePage, setHomePage] = useState(1);
+  const sentinelRef = useRef(null);
+
+  const buildParams = (page, append = false) => ({
+    sort: filters.sort,
+    page,
+    limit: 9,
+    ...(append && { append: true }),
+    ...(filters.category !== "All" && { category: filters.category }),
+    ...(filters.search && { search: filters.search }),
+  });
   const [featImgError, setFeatImgError] = useState(false);
 
   useEffect(() => {
-    const params = {
-      sort: filters.sort,
-      page: filters.page,
-      limit: 9,
-      ...(filters.category !== "All" && { category: filters.category }),
-      ...(filters.search && { search: filters.search }),
-    };
-    dispatch(fetchDeals(params));
-  }, [dispatch, filters.category, filters.sort, filters.search, filters.page]);
+    setHomePage(1);
+    dispatch(fetchDeals(buildParams(1)));
+  }, [dispatch, filters.category, filters.sort, filters.search]);
+
+  useEffect(() => {
+    const hasMore = pagination?.page < pagination?.pages;
+    if (!hasMore || loading || loadingMore) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          const nextPage = homePage + 1;
+          setHomePage(nextPage);
+          dispatch(fetchDeals(buildParams(nextPage, true)));
+        }
+      },
+      { rootMargin: "200px" }, // start loading slightly before it's actually visible
+    );
+
+    if (sentinelRef.current) observer.observe(sentinelRef.current);
+    return () => observer.disconnect();
+  }, [dispatch, homePage, pagination, loading, loadingMore, filters]);
 
   useEffect(() => {
     dispatch(fetchFeaturedDeal());
@@ -241,20 +275,31 @@ export default function HomeClient() {
               <DealCard key={deal._id} deal={deal} index={i} />
             ))}
 
-          {!loading && !error && deals.length > 0 && (
-            <div className={styles.ctaBanner}>
-              <div>
-                <div className={styles.ctaTitle}>Found a great deal? 🎉</div>
-                <div className={styles.ctaDesc}>
-                  Post it and earn points on every sale.
+          {loadingMore &&
+            Array.from({ length: 3 }).map((_, i) => (
+              <SkeletonCard key={`more-${i}`} />
+            ))}
+
+          <div ref={sentinelRef} style={{ gridColumn: "1 / -1", height: 1 }} />
+
+          {!loading &&
+            !error &&
+            deals.length > 0 &&
+            (!pagination?.pages || pagination.page >= pagination.pages) && (
+              <div className={styles.ctaBanner}>
+                <div>
+                  <div className={styles.ctaTitle}>Found a great deal? 🎉</div>
+                  <div className={styles.ctaDesc}>
+                    Post it and earn points on every sale.
+                  </div>
                 </div>
+                <Link href="/post" className={styles.ctaBtn}>
+                  <Plus size={15} strokeWidth={2.5} />
+                  Post a Deal
+                </Link>
               </div>
-              <Link href="/post-type" className={styles.ctaBtn}>
-                <Plus size={15} strokeWidth={2.5} />
-                Post a Deal
-              </Link>
-            </div>
-          )}
+            )}
+
         </div>
       </main>
     </div>
