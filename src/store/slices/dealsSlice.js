@@ -59,6 +59,22 @@ export const fetchMyDeals = createAsyncThunk(
   },
 );
 
+export const fetchMoreFromPoster = createAsyncThunk(
+  "deals/fetchMoreFromPoster",
+  async ({ postedBy, exclude }, { rejectWithValue }) => {
+    try {
+      const { data } = await api.get("/deals", {
+        params: { postedBy, exclude, limit: 3, sort: "new" },
+      });
+      return data.deals;
+    } catch (err) {
+      return rejectWithValue(
+        err.response?.data?.message || "Failed to fetch more deals",
+      );
+    }
+  },
+);
+
 export const updateDeal = createAsyncThunk(
   "deals/update",
   async ({ id, updates }, { rejectWithValue }) => {
@@ -191,6 +207,7 @@ const dealsSlice = createSlice({
   initialState: {
     deals: [],
     loadingMore: false,
+    moreFromPoster: [],
     myDeals: [],
     savedDeals: [],
     adminDeals: [],
@@ -212,6 +229,9 @@ const dealsSlice = createSlice({
   reducers: {
     setFilter: (state, action) => {
       state.filters = { ...state.filters, ...action.payload, page: 1 };
+    },
+    clearMoreFromPoster: (state) => {
+      state.moreFromPoster = [];
     },
   },
   extraReducers: (builder) => {
@@ -322,8 +342,11 @@ const dealsSlice = createSlice({
     builder.addCase(fetchMySavedDeals.fulfilled, (state, action) => {
       state.savedDeals = action.payload;
     });
+    builder.addCase(fetchMoreFromPoster.fulfilled, (state, action) => {
+      state.moreFromPoster = action.payload;
+    });
   },
 });
 
-export const { setFilter } = dealsSlice.actions;
+export const { setFilter, clearMoreFromPoster } = dealsSlice.actions;
 export default dealsSlice.reducer;

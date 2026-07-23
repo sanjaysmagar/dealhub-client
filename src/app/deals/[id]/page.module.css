@@ -197,6 +197,36 @@
   margin-bottom: 10px;
 }
 
+.moreFromCard {
+  background: #ffffff;
+  border: 1.5px solid #e5e5e5;
+  border-radius: 14px;
+  padding: 16px;
+}
+
+.moreFromTitle {
+  font-size: 14px;
+  font-weight: 800;
+  color: #111111;
+  margin-bottom: 12px;
+}
+
+.moreFromGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.moreFromGrid > * {
+  height: 260px !important;
+}
+
+@media (max-width: 600px) {
+  .moreFromGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
 .voteCardLabel {
   font-size: 12px;
   font-weight: 600;

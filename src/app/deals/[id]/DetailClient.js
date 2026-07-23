@@ -26,12 +26,16 @@ import {
   Tag,
   Lock,
   TrendingUp,
+  Info,
 } from "lucide-react";
 import {
   fetchDealById,
   voteDeal,
   toggleSaveDeal,
+  fetchMoreFromPoster,
+  clearMoreFromPoster,
 } from "@/store/slices/dealsSlice";
+import DealCard from "@/components/deals/DealCard";
 import { generateLink } from "@/store/slices/affiliateSlice";
 import { formatPrice, timeAgo, CAT_STYLES } from "@/lib/utils";
 import styles from "./page.module.css";
@@ -45,7 +49,12 @@ const heatColor = (score) => {
 
 export default function DetailClient({ dealId }) {
   const dispatch = useDispatch();
-  const { currentDeal: deal, loading, error } = useSelector((s) => s.deals);
+  const {
+    currentDeal: deal,
+    loading,
+    error,
+    moreFromPoster,
+  } = useSelector((s) => s.deals);
   const { user } = useSelector((s) => s.auth);
   const { linksByDeal, loading: linkLoading } = useSelector((s) => s.affiliate);
 
@@ -59,8 +68,21 @@ export default function DetailClient({ dealId }) {
   const VISIBLE_THUMBS = 4;
 
   useEffect(() => {
+    dispatch(clearMoreFromPoster());
     dispatch(fetchDealById(dealId));
   }, [dispatch, dealId]);
+
+  useEffect(() => {
+    // The extra `deal._id === dealId` check prevents a race condition where
+    // this fires using a stale previously-viewed deal's poster (still sitting
+    // in Redux for a moment during client-side navigation) instead of the
+    // deal this page is actually showing.
+    if (deal?.postedBy?._id && deal._id === dealId) {
+      dispatch(
+        fetchMoreFromPoster({ postedBy: deal.postedBy._id, exclude: deal._id }),
+      );
+    }
+  }, [dispatch, deal?.postedBy?._id, deal?._id, dealId]);
 
   // ── Loading state ──
   if (loading) {
@@ -124,6 +146,8 @@ export default function DetailClient({ dealId }) {
 
   const upCount = deal.votes?.up || 0;
   const downCount = deal.votes?.down || 0;
+
+  const isPoster = !!(user && deal.postedBy?._id === user._id);
 
   const handleVote = (type) => {
     if (!user) {
@@ -421,19 +445,64 @@ export default function DetailClient({ dealId }) {
                 ))}
               </div>
             </div>
+
             {/* ══════════ AFFILIATE BOX ══════════ */}
-            <div className={styles.lockedWrap}>
-              <div
-                className={`${styles.affiliateBox} ${!user ? styles.lockedContent : ""}`}
-              >
+
+            {/* Not logged in — existing sign-in prompt */}
+            {!user && (
+              <div className={styles.lockedWrap}>
+                <div
+                  className={`${styles.affiliateBox} ${styles.lockedContent}`}
+                >
+                  <div className={styles.affiliateTitle}>
+                    <Link2 size={16} strokeWidth={2.5} />
+                    Share This Deal &amp; Earn
+                  </div>
+                  <p className={styles.affiliateDesc}>
+                    Sign in to vote, save deals, and — if you post your own —
+                    earn <strong>1 pt per click</strong> and{" "}
+                    <strong>20 pts per purchase</strong> when others shop
+                    through it.
+                  </p>
+                </div>
+                <div className={styles.lockedOverlay}>
+                  <div className={styles.lockedIcon}>
+                    <Lock size={20} color="#111" strokeWidth={2} />
+                  </div>
+                  <Link href="/login" className={styles.lockedBtn}>
+                    <User size={14} strokeWidth={2.5} />
+                    Sign in
+                  </Link>
+                </div>
+              </div>
+            )}
+
+            {/* Logged in but NOT the poster — show more from this poster instead */}
+            {user && !isPoster && moreFromPoster.length > 0 && (
+              <div className={styles.moreFromCard}>
+                <div className={styles.moreFromTitle}>
+                  More from @{deal.postedBy?.username || "this member"}
+                </div>
+                <div className={styles.moreFromGrid}>
+                  {moreFromPoster.map((d, i) => (
+                    <DealCard key={d._id} deal={d} index={i} />
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Logged in AND is the poster — full generate/share flow */}
+            {user && isPoster && (
+              <div className={styles.affiliateBox}>
                 <div className={styles.affiliateTitle}>
                   <Link2 size={16} strokeWidth={2.5} />
-                  Your Affiliate Link
+                  Share This Deal &amp; Earn
                 </div>
                 <p className={styles.affiliateDesc}>
+                  This is <strong>your</strong> tracking link for this deal.
                   Earn <strong>1 pt per click</strong> and{" "}
                   <strong>20 pts per purchase</strong> when someone shops
-                  through your link.
+                  through it.
                 </p>
 
                 <div className={styles.affiliateStats}>
@@ -485,7 +554,7 @@ export default function DetailClient({ dealId }) {
                     onClick={handleGenerate}
                   >
                     <Link2 size={16} strokeWidth={2.5} />
-                    Generate My Affiliate Link
+                    Show My Tracking Link
                   </button>
                 )}
 
@@ -528,20 +597,7 @@ export default function DetailClient({ dealId }) {
                   </div>
                 )}
               </div>
-
-              {/* Login-required overlay */}
-              {!user && (
-                <div className={styles.lockedOverlay}>
-                  <div className={styles.lockedIcon}>
-                    <Lock size={20} color="#111" strokeWidth={2} />
-                  </div>
-                  <Link href="/login" className={styles.lockedBtn}>
-                    <User size={14} strokeWidth={2.5} />
-                    Sign in to generate
-                  </Link>
-                </div>
-              )}
-            </div>
+            )}
           </div>
         </div>
       </div>
