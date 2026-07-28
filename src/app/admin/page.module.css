@@ -143,6 +143,26 @@
   justify-content: center;
   font-size: 24px;
   flex-shrink: 0;
+  overflow: hidden;
+}
+
+.dealImgPhoto {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.expiredPill {
+  padding: 2px 9px;
+  border-radius: 5px;
+  font-size: 10px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: #fef2f2;
+  color: #991b1b;
 }
 
 .dealInfo {

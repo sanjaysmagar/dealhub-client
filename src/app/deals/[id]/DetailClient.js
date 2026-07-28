@@ -375,6 +375,24 @@ export default function DetailClient({ dealId }) {
               Posted {timeAgo(deal.createdAt)} by @
               {deal.postedBy?.username || "a member"}.
             </p>
+            {deal.expiresAt && (
+              <div
+                className={`${styles.expiryNote} ${
+                  new Date(deal.expiresAt) < new Date()
+                    ? styles.expiryNoteExpired
+                    : ""
+                }`}
+              >
+                {new Date(deal.expiresAt) < new Date()
+                  ? "⏰ Expired on "
+                  : "⏰ Expires "}
+                {new Date(deal.expiresAt).toLocaleDateString("en-GB", {
+                  day: "numeric",
+                  month: "short",
+                  year: "numeric",
+                })}
+              </div>
+            )}
             {/* Price block */}
             <div className={styles.priceBlock}>
               <div>

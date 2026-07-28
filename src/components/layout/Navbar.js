@@ -17,16 +17,11 @@ import {
   Star,
   ChevronDown,
   Shield,
+  Home,
 } from "lucide-react";
 import { logout } from "@/store/slices/authSlice";
 import styles from "./Navbar.module.css";
-
-const NAV_LINKS = [
-  { href: "/", label: "Home" },
-  { href: "/deals", label: "Deals" },
-  { href: "/rewards", label: "Rewards" },
-  { href: "/about", label: "About" },
-];
+import NotificationBell from "./NotificationBell";
 
 export default function Navbar() {
   const pathname = usePathname();
@@ -40,6 +35,31 @@ export default function Navbar() {
   const [searchFocus, setSearchFocus] = useState(false);
 
   const userMenuRef = useRef(null);
+  const [scrolled, setScrolled] = useState(false);
+  const NAV_LINKS = [
+    { href: "/", label: "Home", Icon: Home },
+    { href: "/deals", label: "Deals", Icon: Tag },
+  ];
+
+  const REWARDS_LINK = { href: "/rewards", label: "Rewards", Icon: Star };
+  const DASHBOARD_LINK = {
+    href: "/dashboard",
+    label: "Dashboard",
+    Icon: LayoutDashboard,
+  };
+  const ABOUT_LINK = { href: "/about", label: "About Us" };
+
+  const navLinks = user
+    ? [...NAV_LINKS, REWARDS_LINK, DASHBOARD_LINK, ABOUT_LINK]
+    : [...NAV_LINKS, ABOUT_LINK];
+
+  // Transparent + blurred at the top of the page, solid once scrolled
+  useEffect(() => {
+    const handleScroll = () => setScrolled(window.scrollY > 20);
+    handleScroll(); // correct initial state if the page loads mid-scroll
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   // Close mobile menu on route change
   useEffect(() => {
@@ -92,7 +112,7 @@ export default function Navbar() {
   return (
     <>
       {/* ════════════ NAVBAR ════════════ */}
-      <nav className={styles.nav}>
+      <nav className={`${styles.nav} ${scrolled ? styles.navScrolled : ""}`}>
         <div className={styles.inner}>
           {/* Logo */}
           <Link href="/" className={styles.logo}>
@@ -106,82 +126,109 @@ export default function Navbar() {
 
           {/* Desktop nav links */}
           <div className={styles.navLinks}>
-            {NAV_LINKS.map((link) => (
+            {navLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
                 className={`${styles.navLink} ${isActive(link.href) ? styles.navLinkActive : ""}`}
               >
-                {link.label}
+                {link.Icon && (
+                  <link.Icon
+                    size={14}
+                    strokeWidth={2}
+                    className={styles.navLinkIcon}
+                  />
+                )}
+                <span>{link.label}</span>
               </Link>
             ))}
           </div>
 
-          {/* Desktop search */}
-          <form onSubmit={handleSearch} className={styles.searchWrap}>
-            <div
-              className={`${styles.searchBox} ${searchFocus ? styles.searchBoxFocused : ""}`}
-            >
-              <Search size={13} color="#a8a29e" strokeWidth={2.5} />
-              <input
-                type="text"
-                value={searchVal}
-                onChange={(e) => setSearchVal(e.target.value)}
-                onFocus={() => setSearchFocus(true)}
-                onBlur={() => setSearchFocus(false)}
-                placeholder="Search deals..."
-                className={styles.searchInput}
-              />
-            </div>
-          </form>
-
-          {/* Desktop Post a Deal */}
-          <Link
-            href="/post-type"
-            className={styles.postBtn}
-            onClick={handlePostDealClick}
-          >
-            <Plus size={13} strokeWidth={2.5} />
-            Post a Deal
-          </Link>
-
-          {/* Desktop Bell */}
-          {user && (
-            <button className={styles.iconBtn}>
-              <Bell size={15} color="#78716c" strokeWidth={2} />
-            </button>
-          )}
-
-          {/* Right section */}
+          {/* Right section — search, Post, bell, profile, hamburger all grouped together */}
           <div className={styles.rightSection}>
+            {/* Desktop Post a Deal */}
+            <Link
+              href="/post-type"
+              className={styles.postBtn}
+              onClick={handlePostDealClick}
+            >
+              <Plus size={13} strokeWidth={2.5} />
+              Post
+            </Link>
+
+            {/* Desktop search */}
+            <form onSubmit={handleSearch} className={styles.searchWrap}>
+              <div
+                className={`${styles.searchBox} ${searchFocus ? styles.searchBoxFocused : ""}`}
+              >
+                <Search size={13} color="#a8a29e" strokeWidth={2.5} />
+                <input
+                  type="text"
+                  value={searchVal}
+                  onChange={(e) => setSearchVal(e.target.value)}
+                  onFocus={() => setSearchFocus(true)}
+                  onBlur={() => setSearchFocus(false)}
+                  placeholder="Search deals..."
+                  className={styles.searchInput}
+                />
+              </div>
+            </form>
+
+            {/* Desktop Bell — now with real notifications */}
+            {user && <NotificationBell />}
+
             {user ? (
-              /* Logged in */
-              <div className={styles.dropdownWrap} ref={userMenuRef}>
+              <div className={styles.userMenuWrap} ref={userMenuRef}>
                 <button
                   className={styles.userBtn}
                   onClick={() => setUserMenuOpen(!userMenuOpen)}
                 >
-                  <div className={styles.userAvatar}>
-                    {user.username?.[0]?.toUpperCase()}
-                  </div>
-                  <span className={styles.userName}>{user.username}</span>
-                  <ChevronDown
-                    size={13}
-                    color="#a8a29e"
-                    strokeWidth={2}
-                    className={`${styles.chevron} ${userMenuOpen ? styles.chevronOpen : ""}`}
-                  />
+                  {user.avatar ? (
+                    <img
+                      src={user.avatar}
+                      alt={user.username}
+                      className={styles.userAvatarImg}
+                      referrerPolicy="no-referrer"
+                    />
+                  ) : (
+                    <div className={styles.userAvatar}>
+                      {user.username?.charAt(0).toUpperCase()}
+                    </div>
+                  )}
+                  <ChevronDown size={13} strokeWidth={2.5} color="#78716c" />
                 </button>
 
                 {/* Dropdown */}
                 {userMenuOpen && (
                   <div className={styles.dropdown}>
                     <div className={styles.dropdownHeader}>
-                      <div className={styles.dropdownUsername}>
-                        @{user.username}
-                      </div>
-                      <div className={styles.dropdownPoints}>
-                        {user.points || 0} pts earned
+                      <div className={styles.dropdownHeaderRow}>
+                        {user.avatar ? (
+                          <img
+                            src={user.avatar}
+                            alt={user.username}
+                            className={styles.dropdownAvatarImg}
+                            referrerPolicy="no-referrer"
+                          />
+                        ) : (
+                          <div className={styles.userAvatar}>
+                            {user.username?.charAt(0).toUpperCase()}
+                          </div>
+                        )}
+                        <div>
+                          <div className={styles.dropdownUsername}>
+                            @{user.username}
+                          </div>
+                          <div className={styles.dropdownPoints}>
+                            <Star
+                              size={11}
+                              strokeWidth={2.5}
+                              fill="#fbbf24"
+                              color="#d97706"
+                            />
+                            {user.points || 0} points
+                          </div>
+                        </div>
                       </div>
                     </div>
 
@@ -304,7 +351,7 @@ export default function Navbar() {
           onClick={handlePostDealClick}
         >
           <Plus size={15} strokeWidth={2.5} />
-          Post a Deal
+          Post
         </Link>
       </div>
     </>

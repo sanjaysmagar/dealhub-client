@@ -64,6 +64,23 @@ export const updateProfile = createAsyncThunk(
   },
 );
 
+export const googleAuth = createAsyncThunk(
+  "auth/googleAuth",
+  async (credential, { rejectWithValue }) => {
+    try {
+      const { data } = await api.post("/auth/google", { credential });
+      if (typeof window !== "undefined") {
+        localStorage.setItem("token", data.token);
+      }
+      return data;
+    } catch (err) {
+      return rejectWithValue(
+        err.response?.data?.message || "Google sign-in failed",
+      );
+    }
+  },
+);
+
 const authSlice = createSlice({
   name: "auth",
   initialState: {
@@ -115,22 +132,34 @@ const authSlice = createSlice({
       state.error = action.payload;
     });
 
-builder.addCase(updateProfile.pending, (state) => {
-  state.loading = true;
-  state.error   = null;
-});
-builder.addCase(updateProfile.fulfilled, (state, action) => {
-  state.loading = false;
-  state.user    = action.payload;
-});
-builder.addCase(updateProfile.rejected, (state, action) => {
-  state.loading = false;
-  state.error   = action.payload;
-});
-
+    builder.addCase(updateProfile.pending, (state) => {
+      state.loading = true;
+      state.error = null;
+    });
+    builder.addCase(updateProfile.fulfilled, (state, action) => {
+      state.loading = false;
+      state.user = action.payload;
+    });
+    builder.addCase(updateProfile.rejected, (state, action) => {
+      state.loading = false;
+      state.error = action.payload;
+    });
     // Get Me
     builder.addCase(getMe.fulfilled, (state, action) => {
       state.user = action.payload;
+    });
+    builder.addCase(googleAuth.pending, (state) => {
+      state.loading = true;
+      state.error = null;
+    });
+    builder.addCase(googleAuth.fulfilled, (state, action) => {
+      state.loading = false;
+      state.user = action.payload.user;
+      state.token = action.payload.token;
+    });
+    builder.addCase(googleAuth.rejected, (state, action) => {
+      state.loading = false;
+      state.error = action.payload;
     });
   },
 });

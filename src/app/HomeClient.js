@@ -125,8 +125,7 @@ export default function HomeClient() {
         <div className={styles.heroContent}>
           <div className={styles.heroBadge}>
             <Construction size={11} strokeWidth={3} />
-            Under Development: The platform is still in development, so some
-            features may not work as expected.
+            BETA Version
           </div>
           <h1 className={styles.heroTitle}>
             Find deals. Share links.
@@ -172,35 +171,51 @@ export default function HomeClient() {
             href={`/deals/${featuredDeal._id}`}
             className={styles.heroFeatured}
           >
-            <div className={styles.heroFeaturedLabel}>
-              <Flame size={11} strokeWidth={2.5} />
-              Featured Deal
-            </div>
             {featuredDeal.imageUrl && !featImgError ? (
-              <img
-                src={featuredDeal.imageUrl}
-                alt={featuredDeal.title}
-                className={styles.heroFeaturedImg}
-                onError={() => setFeatImgError(true)}
-              />
+              <>
+                <img
+                  src={featuredDeal.imageUrl}
+                  alt={featuredDeal.title}
+                  className={styles.heroFeaturedImg}
+                  onError={() => setFeatImgError(true)}
+                />
+                <div className={styles.heroFeaturedScrim} />
+              </>
             ) : (
-              <div className={styles.heroFeaturedEmoji}>
-                {CAT_STYLES[featuredDeal.category]?.emoji || "🎁"}
+              <div className={styles.heroFeaturedEmojiWrap}>
+                <span className={styles.heroFeaturedEmoji}>
+                  {CAT_STYLES[featuredDeal.category]?.emoji || "🎁"}
+                </span>
               </div>
             )}
-            <div className={styles.heroFeaturedTitle}>{featuredDeal.title}</div>
-            <div className={styles.heroFeaturedPriceRow}>
-              <span className={styles.heroFeaturedPrice}>
-                {formatPrice(featuredDeal.discountedPrice)}
-              </span>
-              <span className={styles.heroFeaturedOldPrice}>
-                {formatPrice(featuredDeal.originalPrice)}
-              </span>
-              {featuredDeal.discountPercent > 0 && (
-                <span className={styles.heroFeaturedDiscount}>
-                  -{featuredDeal.discountPercent}%
+
+            <div className={styles.heroFeaturedLabel}>
+              <Flame
+                size={11}
+                strokeWidth={2.5}
+                color="#fb923c"
+                fill="#fb923c"
+              />
+              Featured Deal
+            </div>
+
+            <div className={styles.heroFeaturedBottom}>
+              <div className={styles.heroFeaturedTitle}>
+                {featuredDeal.title}
+              </div>
+              <div className={styles.heroFeaturedPriceRow}>
+                <span className={styles.heroFeaturedPrice}>
+                  {formatPrice(featuredDeal.discountedPrice)}
                 </span>
-              )}
+                <span className={styles.heroFeaturedOldPrice}>
+                  {formatPrice(featuredDeal.originalPrice)}
+                </span>
+                {featuredDeal.discountPercent > 0 && (
+                  <span className={styles.heroFeaturedDiscount}>
+                    -{featuredDeal.discountPercent}%
+                  </span>
+                )}
+              </div>
             </div>
           </Link>
         )}
@@ -295,11 +310,10 @@ export default function HomeClient() {
                 </div>
                 <Link href="/post" className={styles.ctaBtn}>
                   <Plus size={15} strokeWidth={2.5} />
-                  Post a Deal
+                  Post
                 </Link>
               </div>
             )}
-
         </div>
       </main>
     </div>
