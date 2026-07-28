@@ -14,12 +14,12 @@
 
 /* ── Hero — single container, same padding pattern as .main ── */
 .hero {
-  max-width: 1080px;
+  max-width: 1040px;
   width: 100%;
   margin: 22px auto 20px;
   padding: 28px 40px;
   background: linear-gradient(135deg, #111111 0%, #1a1a1a 55%, #2d2d2d 100%);
-  border-radius: 18px;
+  border-radius: 28px;
   color: #ffffff;
   position: relative;
   overflow: hidden;
@@ -114,11 +114,11 @@
 /* ── Featured Deal card — full-bleed image, text overlaid ── */
 .heroFeatured {
   position: relative;
-  border-radius: 14px;
+  border-radius: 16px;
   cursor: pointer;
   flex-shrink: 0;
   width: 220px;
-  height: 200px;
+  height: 210px;
   text-decoration: none;
   color: #ffffff;
   display: block;
@@ -139,6 +139,7 @@
   height: 100%;
   object-fit: cover;
   display: block;
+  transition: opacity 5s ease;
 }
 
 .heroFeaturedScrim {

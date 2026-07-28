@@ -23,6 +23,10 @@ export default function AboutClient() {
           <div className={styles.heroIcon}>
             <Info size={26} color="#fff" strokeWidth={2} />
           </div>
+          <div className={styles.heroBadge}>
+            <Construction size={11} strokeWidth={3} />
+            BETA
+          </div>
           <h1 className={styles.heroTitle}>About DealHub</h1>
           <p className={styles.heroDesc}>
             A community-driven deals and rewards platform.
@@ -31,21 +35,6 @@ export default function AboutClient() {
       </section>
 
       <div className={styles.main}>
-
-        {/* Dev notice */}
-        <div className={styles.devBanner}>
-          <div className={styles.devIcon}>
-            <Construction size={19} color="#92400e" strokeWidth={2} />
-          </div>
-          <div>
-            <div className={styles.devTitle}>This site is under development</div>
-            <div className={styles.devDesc}>
-              DealHub is currently being built and tested. Some features may be
-              incomplete, data may be reset, and functionality is subject to
-              change without notice.
-            </div>
-          </div>
-        </div>
 
         {/* What is DealHub */}
         <div className={styles.section}>

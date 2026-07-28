@@ -76,7 +76,33 @@ export default function HomeClient() {
     ...(filters.category !== "All" && { category: filters.category }),
     ...(filters.search && { search: filters.search }),
   });
-  const [featImgError, setFeatImgError] = useState(false);
+  const [featuredImgIndex, setFeaturedImgIndex] = useState(0);
+  const [failedFeaturedImgs, setFailedFeaturedImgs] = useState(new Set());
+
+  // Falls back gracefully: full images array if present, else just the
+  // single cover imageUrl, else nothing (emoji shown instead).
+  const featuredGalleryImages = (
+    featuredDeal?.images?.length > 0
+      ? featuredDeal.images
+      : featuredDeal?.imageUrl
+        ? [featuredDeal.imageUrl]
+        : []
+  ).filter((url) => !failedFeaturedImgs.has(url));
+
+  // Reset to the first image whenever a different deal becomes featured
+  useEffect(() => {
+    setFeaturedImgIndex(0);
+  }, [featuredDeal?._id]);
+
+  // Auto-advance through the gallery — only runs when there's actually
+  // more than one image to cycle through
+  useEffect(() => {
+    if (featuredGalleryImages.length <= 1) return;
+    const interval = setInterval(() => {
+      setFeaturedImgIndex((i) => (i + 1) % featuredGalleryImages.length);
+    }, 10000);
+    return () => clearInterval(interval);
+  }, [featuredGalleryImages.length, featuredDeal?._id]);
 
   useEffect(() => {
     setHomePage(1);
@@ -171,14 +197,20 @@ export default function HomeClient() {
             href={`/deals/${featuredDeal._id}`}
             className={styles.heroFeatured}
           >
-            {featuredDeal.imageUrl && !featImgError ? (
+            {featuredGalleryImages.length > 0 ? (
               <>
-                <img
-                  src={featuredDeal.imageUrl}
-                  alt={featuredDeal.title}
-                  className={styles.heroFeaturedImg}
-                  onError={() => setFeatImgError(true)}
-                />
+                {featuredGalleryImages.map((url, i) => (
+                  <img
+                    key={url}
+                    src={url}
+                    alt={featuredDeal.title}
+                    className={styles.heroFeaturedImg}
+                    style={{ opacity: i === featuredImgIndex ? 1 : 0 }}
+                    onError={() =>
+                      setFailedFeaturedImgs((prev) => new Set(prev).add(url))
+                    }
+                  />
+                ))}
                 <div className={styles.heroFeaturedScrim} />
               </>
             ) : (

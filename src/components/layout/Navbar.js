@@ -281,7 +281,11 @@ export default function Navbar() {
             ) : (
               /* Not logged in */
               <Link href="/login" className={styles.signInBtn}>
-                <User size={13} strokeWidth={2.5} />
+                {/* <User
+                  size={13}
+                  strokeWidth={2.5}
+                  className={styles.signInIcon}
+                /> */}
                 Sign in
               </Link>
             )}
