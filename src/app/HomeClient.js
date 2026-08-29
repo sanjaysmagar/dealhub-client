@@ -11,12 +11,14 @@ import {
   Zap,
   Construction,
   ArrowRight,
+  Sparkles,
 } from "lucide-react";
 import {
   fetchDeals,
   setFilter,
   fetchFeaturedDeal,
   fetchStats,
+  fetchRecommendedDeals,
 } from "@/store/slices/dealsSlice";
 import CategoryDropdown from "@/components/layout/CategoryDropdown";
 import DealCard from "@/components/deals/DealCard";
@@ -24,16 +26,13 @@ import styles from "./page.module.css";
 import { CAT_STYLES, formatPrice, formatCount } from "@/lib/utils";
 
 const SORT_OPTIONS = [
+  { key: "recommended", label: "For You", Icon: Sparkles },
   { key: "hot", label: "Hot", Icon: Flame },
   { key: "new", label: "New", Icon: Clock },
-  { key: "top", label: "Top", Icon: TrendingUp },
+  // { key: "top", label: "Top", Icon: TrendingUp },
 ];
 
-// const HERO_STATS = [
-//   { value: "2,847", label: "Deals live" },
-//   { value: "15.4K", label: "Members" },
-//   { value: "£1.2M", label: "Total saved" },
-// ];
+const SORT_LABELS = { hot: "Hot Deals", new: "New Deals", top: "Top Deals" };
 
 function SkeletonCard() {
   return (
@@ -58,12 +57,25 @@ export default function HomeClient() {
     deals,
     featuredDeal,
     stats,
+    recommendedDeals = [],
+    recommendedLoading,
+    recommendedError,
     loading,
     loadingMore,
     error,
     filters,
     pagination,
   } = useSelector((s) => s.deals);
+
+  const isRecommended = filters.sort === "recommended";
+  const displayDeals = isRecommended ? recommendedDeals : deals;
+  const displayLoading = isRecommended ? recommendedLoading : loading;
+  const displayError = isRecommended ? recommendedError : error;
+  const sectionTitle = isRecommended
+    ? "Recommended"
+    : filters.category !== "All"
+      ? `${filters.category} Deals`
+      : SORT_LABELS[filters.sort] || "Deals";
 
   const [homePage, setHomePage] = useState(1);
   const sentinelRef = useRef(null);
@@ -109,6 +121,16 @@ export default function HomeClient() {
     dispatch(fetchDeals(buildParams(1)));
   }, [dispatch, filters.category, filters.sort, filters.search]);
 
+  // useEffect(() => {
+  //   dispatch(fetchRecommendedDeals({ limit: 8 }));
+  // }, [dispatch]);
+
+  useEffect(() => {
+    if (filters.sort === "recommended") return;
+    setHomePage(1);
+    dispatch(fetchDeals(buildParams(1)));
+  }, [dispatch, filters.category, filters.sort, filters.search]);
+
   useEffect(() => {
     const hasMore = pagination?.page < pagination?.pages;
     if (!hasMore || loading || loadingMore) return;
@@ -138,8 +160,16 @@ export default function HomeClient() {
 
   const handleSort = (key) => dispatch(setFilter({ sort: key }));
 
-  const handleRetry = () =>
-    dispatch(fetchDeals({ sort: filters.sort, page: 1, limit: 9 }));
+  // const handleRetry = () =>
+  //   dispatch(fetchDeals({ sort: filters.sort, page: 1, limit: 9 }));
+
+  const handleRetry = () => {
+    if (isRecommended) {
+      dispatch(fetchRecommendedDeals({ limit: 8 }));
+    } else {
+      dispatch(fetchDeals({ sort: filters.sort, page: 1, limit: 9 }));
+    }
+  };
 
   return (
     <div className={styles.page}>
@@ -162,14 +192,6 @@ export default function HomeClient() {
             Post deals, generate your personal affiliate link, and earn points
             every time someone shops through it.
           </p>
-          {/* <div className={styles.heroStats}>
-            {HERO_STATS.map((s) => (
-              <div key={s.label} className={styles.heroStat}>
-                <span className={styles.heroStatVal}>{s.value}</span>
-                <span className={styles.heroStatLabel}>{s.label}</span>
-              </div>
-            ))}
-          </div> */}
           <div className={styles.heroStats}>
             <div className={styles.heroStat}>
               <span className={styles.heroStatVal}>
@@ -255,21 +277,25 @@ export default function HomeClient() {
 
       {/* Main content */}
       <main className={styles.main}>
-        {/* Sort bar */}
 
+        {/* Sort bar */}
         <div className={styles.sortBar}>
           <div className={styles.sortBarLeft}>
-            <span className={styles.sortTitle}>
-              {filters.category === "All"
-                ? "Hot Deals"
-                : `${filters.category} Deals`}
-            </span>
-            {pagination?.total > 0 && (
-              <span className={styles.sortCount}>{pagination.total} deals</span>
-            )}
+            <span className={styles.sortTitle}>{sectionTitle}</span>
+            {isRecommended
+              ? recommendedDeals.length > 0 && (
+                  <span className={styles.sortCount}>
+                    {recommendedDeals.length} picks
+                  </span>
+                )
+              : pagination?.total > 0 && (
+                  <span className={styles.sortCount}>
+                    {pagination.total} deals
+                  </span>
+                )}
           </div>
           <div className={styles.sortBarRight}>
-            <CategoryDropdown />
+            {!isRecommended && <CategoryDropdown />}
             <div className={styles.sortBtns}>
               {SORT_OPTIONS.map(({ key, label, Icon }) => (
                 <button
@@ -290,46 +316,59 @@ export default function HomeClient() {
 
         {/* Grid */}
         <div className={styles.grid}>
-          {loading &&
+          {displayLoading &&
             Array.from({ length: 9 }).map((_, i) => <SkeletonCard key={i} />)}
 
-          {!loading && error && (
+          {!displayLoading && displayError && (
             <div className={styles.stateBox}>
               <div className={styles.stateIcon}>⚠️</div>
               <div className={styles.stateTitle}>Something went wrong</div>
-              <div className={styles.stateDesc}>{error}</div>
+              <div className={styles.stateDesc}>{displayError}</div>
               <button className={styles.retryBtn} onClick={handleRetry}>
                 Try again
               </button>
             </div>
           )}
 
-          {!loading && !error && deals.length === 0 && (
+          {!displayLoading && !displayError && displayDeals.length === 0 && (
             <div className={styles.stateBox}>
-              <div className={styles.stateIcon}>🔍</div>
-              <div className={styles.stateTitle}>No deals found</div>
+              <div className={styles.stateIcon}>
+                {isRecommended ? "✨" : "🔍"}
+              </div>
+              <div className={styles.stateTitle}>
+                {isRecommended ? "No recommendations yet" : "No deals found"}
+              </div>
               <div className={styles.stateDesc}>
-                {filters.category !== "All"
-                  ? `No ${filters.category} deals yet. Be the first!`
-                  : "No deals yet. Post the first deal!"}
+                {isRecommended
+                  ? "Vote, save, or post a few deals to get personalised picks."
+                  : filters.category !== "All"
+                    ? `No ${filters.category} deals yet. Be the first!`
+                    : "No deals yet. Post the first deal!"}
               </div>
             </div>
           )}
 
-          {!loading &&
-            !error &&
-            deals.map((deal, i) => (
+          {!displayLoading &&
+            !displayError &&
+            displayDeals.map((deal, i) => (
               <DealCard key={deal._id} deal={deal} index={i} />
             ))}
 
-          {loadingMore &&
+          {!isRecommended &&
+            loadingMore &&
             Array.from({ length: 3 }).map((_, i) => (
               <SkeletonCard key={`more-${i}`} />
             ))}
 
-          <div ref={sentinelRef} style={{ gridColumn: "1 / -1", height: 1 }} />
+          {!isRecommended && (
+            <div
+              ref={sentinelRef}
+              style={{ gridColumn: "1 / -1", height: 1 }}
+            />
+          )}
 
-          {!loading &&
+          {!isRecommended &&
+            !loading &&
             !error &&
             deals.length > 0 &&
             (!pagination?.pages || pagination.page >= pagination.pages) && (
@@ -341,8 +380,7 @@ export default function HomeClient() {
                   </div>
                 </div>
                 <Link href="/post" className={styles.ctaBtn}>
-                  <Plus size={15} strokeWidth={2.5} />
-                  Post
+                  <Plus size={15} strokeWidth={2.5} /> Post
                 </Link>
               </div>
             )}

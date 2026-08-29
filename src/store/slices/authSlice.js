@@ -2,15 +2,28 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import api from "@/lib/api";
 
 // Async thunk — Register
+// export const registerUser = createAsyncThunk(
+//   "auth/register",
+//   async (userData, { rejectWithValue }) => {
+//     try {
+//       const { data } = await api.post("/auth/register", userData);
+//       if (typeof window !== "undefined") {
+//         localStorage.setItem("token", data.token);
+//       }
+//       return data;
+//     } catch (err) {
+//       return rejectWithValue(
+//         err.response?.data?.message || "Registration failed",
+//       );
+//     }
+//   },
+// );
 export const registerUser = createAsyncThunk(
   "auth/register",
   async (userData, { rejectWithValue }) => {
     try {
       const { data } = await api.post("/auth/register", userData);
-      if (typeof window !== "undefined") {
-        localStorage.setItem("token", data.token);
-      }
-      return data;
+      return data; // { message, userId, email } — no token until verified
     } catch (err) {
       return rejectWithValue(
         err.response?.data?.message || "Registration failed",
@@ -19,7 +32,53 @@ export const registerUser = createAsyncThunk(
   },
 );
 
+export const verifyOtp = createAsyncThunk(
+  "auth/verifyOtp",
+  async ({ userId, code }, { rejectWithValue }) => {
+    try {
+      const { data } = await api.post("/auth/verify-otp", { userId, code });
+      if (typeof window !== "undefined") {
+        localStorage.setItem("token", data.token);
+      }
+      return data;
+    } catch (err) {
+      return rejectWithValue(
+        err.response?.data?.message || "Verification failed",
+      );
+    }
+  },
+);
+
+export const resendOtp = createAsyncThunk(
+  "auth/resendOtp",
+  async (userId, { rejectWithValue }) => {
+    try {
+      const { data } = await api.post("/auth/resend-otp", { userId });
+      return data;
+    } catch (err) {
+      return rejectWithValue(
+        err.response?.data?.message || "Failed to resend code",
+      );
+    }
+  },
+);
+
 // Async thunk — Login
+// export const loginUser = createAsyncThunk(
+//   "auth/login",
+//   async (credentials, { rejectWithValue }) => {
+//     try {
+//       const { data } = await api.post("/auth/login", credentials);
+//       if (typeof window !== "undefined") {
+//         localStorage.setItem("token", data.token);
+//       }
+//       return data;
+//     } catch (err) {
+//       return rejectWithValue(err.response?.data?.message || "Login failed");
+//     }
+//   },
+// );
+
 export const loginUser = createAsyncThunk(
   "auth/login",
   async (credentials, { rejectWithValue }) => {
@@ -30,7 +89,16 @@ export const loginUser = createAsyncThunk(
       }
       return data;
     } catch (err) {
-      return rejectWithValue(err.response?.data?.message || "Login failed");
+      const responseData = err.response?.data;
+      if (responseData?.requiresVerification) {
+        return rejectWithValue({
+          message: responseData.message,
+          requiresVerification: true,
+          userId: responseData.userId,
+          email: responseData.email,
+        });
+      }
+      return rejectWithValue(responseData?.message || "Login failed");
     }
   },
 );
@@ -87,7 +155,9 @@ const authSlice = createSlice({
     user: null,
     token: null,
     loading: false,
+    resendLoading: false,
     error: null,
+    pendingVerification: null,
   },
   reducers: {
     logout: (state) => {
@@ -100,6 +170,9 @@ const authSlice = createSlice({
     clearError: (state) => {
       state.error = null;
     },
+    clearPendingVerification: (state) => {
+      state.pendingVerification = null;
+    },
   },
   extraReducers: (builder) => {
     // Register
@@ -107,10 +180,43 @@ const authSlice = createSlice({
       state.loading = true;
       state.error = null;
     });
+    // builder.addCase(registerUser.fulfilled, (state, action) => {
+    //   state.loading = false;
+    //   state.user = action.payload.user;
+    //   state.token = action.payload.token;
+    // });
     builder.addCase(registerUser.fulfilled, (state, action) => {
+      state.loading = false;
+      state.pendingVerification = {
+        userId: action.payload.userId,
+        email: action.payload.email,
+      };
+    });
+    builder.addCase(verifyOtp.pending, (state) => {
+      state.loading = true;
+      state.error = null;
+    });
+    builder.addCase(verifyOtp.fulfilled, (state, action) => {
       state.loading = false;
       state.user = action.payload.user;
       state.token = action.payload.token;
+      state.pendingVerification = null;
+    });
+    builder.addCase(verifyOtp.rejected, (state, action) => {
+      state.loading = false;
+      state.error = action.payload;
+    });
+
+    builder.addCase(resendOtp.pending, (state) => {
+      state.resendLoading = true;
+      state.error = null;
+    });
+    builder.addCase(resendOtp.fulfilled, (state) => {
+      state.resendLoading = false;
+    });
+    builder.addCase(resendOtp.rejected, (state, action) => {
+      state.resendLoading = false;
+      state.error = action.payload;
     });
     builder.addCase(registerUser.rejected, (state, action) => {
       state.loading = false;
@@ -127,11 +233,22 @@ const authSlice = createSlice({
       state.user = action.payload.user;
       state.token = action.payload.token;
     });
+    // builder.addCase(loginUser.rejected, (state, action) => {
+    //   state.loading = false;
+    //   state.error = action.payload;
+    // });
     builder.addCase(loginUser.rejected, (state, action) => {
       state.loading = false;
-      state.error = action.payload;
+      if (action.payload?.requiresVerification) {
+        state.error = action.payload.message;
+        state.pendingVerification = {
+          userId: action.payload.userId,
+          email: action.payload.email,
+        };
+      } else {
+        state.error = action.payload;
+      }
     });
-
     builder.addCase(updateProfile.pending, (state) => {
       state.loading = true;
       state.error = null;
@@ -164,5 +281,6 @@ const authSlice = createSlice({
   },
 });
 
-export const { logout, clearError } = authSlice.actions;
+export const { logout, clearError, clearPendingVerification } =
+  authSlice.actions;
 export default authSlice.reducer;

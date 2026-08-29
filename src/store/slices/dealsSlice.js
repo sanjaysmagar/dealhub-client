@@ -30,6 +30,20 @@ export const fetchDealById = createAsyncThunk(
   },
 );
 
+export const fetchRecommendedDeals = createAsyncThunk(
+  "deals/fetchRecommended",
+  async (params = {}, { rejectWithValue }) => {
+    try {
+      const { data } = await api.get("/deals/recommended", { params });
+      return data.deals;
+    } catch (err) {
+      return rejectWithValue(
+        err.response?.data?.message || "Failed to fetch recommended deals",
+      );
+    }
+  },
+);
+
 // Create a deal
 export const createDeal = createAsyncThunk(
   "deals/create",
@@ -210,6 +224,7 @@ const dealsSlice = createSlice({
     moreFromPoster: [],
     myDeals: [],
     savedDeals: [],
+    recommendedDeals: [],
     adminDeals: [],
     adminCounts: { total: 0, approved: 0, rejected: 0 },
     adminPagination: {},
@@ -344,6 +359,21 @@ const dealsSlice = createSlice({
     });
     builder.addCase(fetchMoreFromPoster.fulfilled, (state, action) => {
       state.moreFromPoster = action.payload;
+    });
+    // builder.addCase(fetchRecommendedDeals.fulfilled, (state, action) => {
+    //   state.recommendedDeals = action.payload;
+    // });
+    builder.addCase(fetchRecommendedDeals.pending, (state) => {
+      state.recommendedLoading = true;
+      state.recommendedError = null;
+    });
+    builder.addCase(fetchRecommendedDeals.fulfilled, (state, action) => {
+      state.recommendedLoading = false;
+      state.recommendedDeals = action.payload;
+    });
+    builder.addCase(fetchRecommendedDeals.rejected, (state, action) => {
+      state.recommendedLoading = false;
+      state.recommendedError = action.payload;
     });
   },
 });
